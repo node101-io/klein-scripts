@@ -79,9 +79,7 @@ make build
 make install
 sleep 1
 
-$EXECUTE config chain-id $CHAIN_ID
-$EXECUTE config keyring-backend test
-$EXECUTE config node tcp://localhost:15557
+
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 
