@@ -5,5 +5,6 @@
     "celestia":["https://node101.io/celestia/celestia_light.sh","https://node101.io/celestia/celestia_bridge.sh","https://node101.io/celestia/celestia_full.sh"],
     "sui":"https://node101.io/testnet/sui.sh",
     "lava":"https://node101.io/testnet/lava.sh",
-    "cosmoshub": "https://node101.io/mainnet/cosmoshub.sh"
+    "cosmoshub": "https://node101.io/mainnet/cosmoshub.sh",
+    "osmosis": "https://node101.io/mainnet/osmosis.sh"
 }
