@@ -6,5 +6,7 @@
     "sui":"https://node101.io/testnet/sui.sh",
     "lava":"https://node101.io/testnet/lava.sh",
     "cosmoshub": "https://node101.io/mainnet/cosmoshub.sh",
-    "osmosis": "https://node101.io/mainnet/osmosis.sh"
+    "osmosis": "https://node101.io/mainnet/osmosis.sh",
+    "iris": "https://node101.io/mainnet/iris.sh",
+    "sommelier": "https://node101.io/mainnet/sommelier.sh"
 }
