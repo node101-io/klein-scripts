@@ -59,6 +59,8 @@ sudo apt update
 sudo apt install lz4
 sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop -y < "/dev/null"
 
+echo "10 installation_progress"
+
 #Installation of GoLang
 
 cd $HOME
@@ -70,6 +72,8 @@ rm "go$GO_VERSION.linux-amd64.tar.gz"
 echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 go version
+
+echo "45 installation_progress"
 
 
 sleep 1
@@ -110,9 +114,7 @@ sed -i 's|^prometheus *=.*|prometheus = true|' $HOME/.nibid/config/config.toml
 # sed -i 's|trust_height =.*|trust_height = "'$(curl -s https://networks.itn.nibiru.fi/$CHAIN_ID/trust_height)'"|g' $SYSTEM_FOLDER/config/config.toml
 # sed -i 's|trust_hash =.*|trust_hash = "'$(curl -s https://networks.itn.nibiru.fi/$CHAIN_ID/trust_hash)'"|g' $SYSTEM_FOLDER/config/config.toml
 
-
-
-
+echo "70 installation_progress"
 
 # Creating your systemd service
 sudo tee /etc/systemd/system/nibid.service > /dev/null <<EOF
@@ -141,10 +143,9 @@ sudo systemctl daemon-reload
 sudo systemctl enable $EXECUTE
 sudo systemctl restart $EXECUTE
 
+echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
+
 echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
 echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:${PORT}657/status | jq .result.sync_info\e[0m"
 source $HOME/.bash_profile
-
-
-
