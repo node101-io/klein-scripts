@@ -72,7 +72,7 @@ celestia light init --keyring.accname my_celes_key --p2p.network blockspacerace
 
 echo -e "y\n" || ./cel-key add my_celes_key --node.type light --p2p.network blockspacerace
 
-echo "90 installation_progress"
+echo "80 installation_progress"
 
 # Creating your systemd service
 sudo tee <<EOF >/dev/null /etc/systemd/system/$EXECUTE.service
