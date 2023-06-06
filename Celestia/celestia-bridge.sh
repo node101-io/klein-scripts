@@ -45,6 +45,8 @@ sleep 1
 # Updates
 sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
 
+echo "15 installation_progress"
+
 cd $HOME
 wget "https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
@@ -54,6 +56,7 @@ echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 go version
 
+echo "45 installation_progress"
 
 sleep 1
 
@@ -83,6 +86,7 @@ make cel-key
 cd ~/celestia-node
 celestia bridge init --keyring.accname my_celes_key --core.ip https://rpc-blockspacerace.pops.one/ --p2p.network blockspacerace
 
+echo "75 installation_progress"
 
 # Creating your systemd service
 sudo tee <<EOF >/dev/null /etc/systemd/system/$EXECUTE.service
@@ -103,6 +107,8 @@ EOF
 systemctl daemon-reload
 sudo systemctl enable $EXECUTE
 sudo systemctl restart $EXECUTE
+
+echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
 
 echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu $EXECUTE -o cat\e[0m"
