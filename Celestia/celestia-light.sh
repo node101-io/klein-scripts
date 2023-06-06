@@ -14,7 +14,6 @@ echo -e '\e[0m'
 
 # Variables
 
-
 GO_VERSION="1.20.4"
 REPO="https://github.com/celestiaorg/celestia-node.git"
 VERSION=v0.9.5
