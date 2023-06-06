@@ -25,6 +25,8 @@ PROJECT_FOLDER=celestia-app
 DENOM="utia"
 sleep 2
 
+echo "5 installation_progress"
+
 echo "export GO_VERSION=${GO_VERSION}" >> $HOME/.bash_profile
 echo "export REPO=${REPO}" >> $HOME/.bash_profile
 echo "export VERSION=${VERSION}" >> $HOME/.bash_profile
@@ -41,6 +43,8 @@ sleep 1
 # Updates
 sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
 
+echo "50 installation_progress"
+
 cd $HOME
 wget "https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
@@ -53,6 +57,8 @@ go version
 
 sleep 1
 
+echo "65 installation_progress"
+
 #Clone celestia node
 
 cd $HOME 
@@ -64,6 +70,7 @@ make build
 make install
 make cel-key
 
+echo "85 installation_progress"
 
 ./cel-key add my_celes_key --node.type full --p2p.network blockspacerace
 
@@ -90,6 +97,8 @@ EOF
 systemctl daemon-reload
 sudo systemctl enable $EXECUTE
 sudo systemctl restart $EXECUTE 
+
+echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
 
 echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu $EXECUTE -o cat\e[0m"
