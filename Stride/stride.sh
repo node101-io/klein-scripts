@@ -135,7 +135,7 @@ EOF
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 
 STATE_SYNC_RPC=https://stride.rpc.kjnodes.com:443
-STATE_SYNC_PEER=e821acdaf0c7a3c60ea3cd4eb4a98a62dad06f58@43.201.12.41:26656
+STATE_SYNC_PEER=e821acdaf0c7a3c60ea3cd4eb4a98a62dad06f58@43.201.12.41:26656,df3f533e6b9776c11f08da804edcb810cbdd2080@65.108.234.23:12256,e821acdaf0c7a3c60ea3cd4eb4a98a62dad06f58@43.201.12.41:26656,a7b4cf6f65138ba61518c2c45402da32dc8e28b7@stride.peer.stavr.tech:21016,b5f9fa874781f975687018ae559f0d952d3a2e24@52.52.208.179:26656,ebc272824924ea1a27ea3183dd0b9ba713494f83@stride-mainnet-peer.autostake.com:26886,ced7684f4d60399986cdbc1465ac00a420a14202@peer-stride-01.stakeflow.io:1807,4d17c6e85a1e6282efee950ff3dfe85b4b043f0f@148.251.51.144:26656
 
 
 LATEST_HEIGHT=$(curl -s $STATE_SYNC_RPC/block | jq -r .result.block.header.height)
