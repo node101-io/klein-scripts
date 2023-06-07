@@ -135,7 +135,8 @@ EOF
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 
 STATE_SYNC_RPC=https://stride.rpc.kjnodes.com:443
-STATE_SYNC_PEER=df3f533e6b9776c11f08da804edcb810cbdd2080@65.108.234.23:12256
+STATE_SYNC_PEER=e821acdaf0c7a3c60ea3cd4eb4a98a62dad06f58@43.201.12.41:26656
+
 
 LATEST_HEIGHT=$(curl -s $STATE_SYNC_RPC/block | jq -r .result.block.header.height)
 SYNC_BLOCK_HEIGHT=$(($LATEST_HEIGHT - 1000))
