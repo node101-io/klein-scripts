@@ -8,5 +8,6 @@
     "cosmoshub": "https://node101.io/mainnet/cosmoshub.sh",
     "osmosis": "https://node101.io/mainnet/osmosis.sh",
     "iris": "https://node101.io/mainnet/iris.sh",
-    "sommelier": "https://node101.io/mainnet/sommelier.sh"
+    "sommelier": "https://node101.io/mainnet/sommelier.sh",
+    "stride": "https://node101.io/mainnet/stride.sh"
 }
