@@ -14,7 +14,7 @@ echo -e '\e[0m'
 
 # Variables
 
-EXECUTE=akashd
+EXECUTE=akash
 CHAIN_ID=akashnet-2
 SYSTEM_FOLDER=.akash
 PROJECT_FOLDER=akash
