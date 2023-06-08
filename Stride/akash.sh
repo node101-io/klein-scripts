@@ -16,8 +16,8 @@ echo -e '\e[0m'
 
 EXECUTE=akashd
 CHAIN_ID=akashnet-2
-SYSTEM_FOLDER=akash
-PROJECT_FOLDER=.akash
+SYSTEM_FOLDER=.akash
+PROJECT_FOLDER=akash
 VERSION=v0.22.7
 REPO=git clone https://github.com/ovrclk/akash 
 GENESIS_FILE=https://snapshots.polkachu.com/genesis/akash/genesis.json
@@ -103,7 +103,7 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0001$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0025$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 
 # Creating your systemd service
