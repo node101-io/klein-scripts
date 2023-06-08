@@ -22,6 +22,7 @@ PORT=26
 SYSTEM_FOLDER=.celestia-light-blockspacerace-0
 PROJECT_FOLDER=celestia-node
 DENOM="utia"
+CHAIN_ID="blockspacerace-0"
 sleep 2
 
 echo "export GO_VERSION=${GO_VERSION}" >> $HOME/.bash_profile
@@ -32,6 +33,7 @@ echo "export PORT=${PORT}" >> $HOME/.bash_profile
 echo "export SYSTEM_FOLDER=${SYSTEM_FOLDER}" >> $HOME/.bash_profile
 echo "export PROJECT_FOLDER=${PROJECT_FOLDER}" >> $HOME/.bash_profile
 echo "export DENOM=${DENOM}" >> $HOME/.bash_profile
+echo "export CHAIN_ID=${CHAIN_ID}" >> $HOME/.bash_profile
 
 source $HOME/.bash_profile
 
