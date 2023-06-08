@@ -17,7 +17,7 @@ echo -e '\e[0m'
 EXECUTE="nibid"
 CHAIN_ID="nibiru-itn-1"
 PORT=26
-SYSTEM_FOLDER=$HOME/.nibid
+SYSTEM_FOLDER=.nibid
 PROJECT_FOLDER="nibiru"
 VERSION=v0.19.2
 GO_VERSION=1.19.6
@@ -87,7 +87,7 @@ $EXECUTE config keyring-backend test
 $EXECUTE config chain-id $CHAIN_ID
 $EXECUTE init "$MONIKER" --chain-id $CHAIN_ID
 
-curl -s $ADDRBOOK > $HOME/.nibid/config/addrbook.json
+curl -s $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 wget $GENESIS_FILE -O $SYSTEM_FOLDER/config/genesis.json
 
 
@@ -104,10 +104,10 @@ sed -i -e "s/^pruning *=.*/pruning = \"$pruning\"/" $SYSTEM_FOLDER/config/app.to
 sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_recent\"/" $SYSTEM_FOLDER/config/app.toml
 sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $SYSTEM_FOLDER/config/app.toml
 sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $SYSTEM_FOLDER/config/app.toml
-sed -i 's|^snapshot-interval *=.*|snapshot-interval = 0|g' $HOME/.nibid/config/app.toml
+sed -i 's|^snapshot-interval *=.*|snapshot-interval = 0|g' $HOME/$SYSTEM_FOLDER/config/app.toml
 
 sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.025unibi\"/" $SYSTEM_FOLDER/config/app.toml
-sed -i 's|^prometheus *=.*|prometheus = true|' $HOME/.nibid/config/config.toml
+sed -i 's|^prometheus *=.*|prometheus = true|' $HOME/$SYSTEM_FOLDER/config/config.toml
 
 # sed -i 's|enable =.*|enable = true|g' $SYSTEM_FOLDER/config/config.toml
 # sed -i 's|rpc_servers =.*|rpc_servers = "'$(curl -s https://networks.itn.nibiru.fi/$CHAIN_ID/rpc_servers)'"|g' $SYSTEM_FOLDER/config/config.toml
