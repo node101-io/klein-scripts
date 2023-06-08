@@ -113,7 +113,7 @@ sed -i -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:44317\"
 
 # Download genesis and addrbook
 curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
-curl -Ls $ADDRBOOK > $HOME/.andromedad/config/addrbook.json
+curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 
 $EXECUTE tendermint unsafe-reset-all --home $HOME/$SYSTEM_FOLDER --keep-addr-book
 
