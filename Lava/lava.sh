@@ -118,7 +118,7 @@ curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 $EXECUTE tendermint unsafe-reset-all --home $HOME/$SYSTEM_FOLDER --keep-addr-book
 
 # Snapshot
-curl -L https://snapshots.kjnodes.com/lava-testnet/snapshot_latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.lava
+curl -L https://services.bccnodes.com/testnets/lava/lava.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.lava
 
 echo "85 installation_progress"
 
