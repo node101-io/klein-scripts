@@ -24,7 +24,7 @@ GENESIS_FILE=
 ADDRBOOK=
 PORT=26
 DENOM=
-GO_VERSION="1.19.3"
+GO_VERSION="1.18.10"
 PEERS=
 SEEDS=
 
@@ -54,10 +54,11 @@ if [ ! $MONIKER ]; then
 fi
 
 
-
 # Updates
 sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
 
+
+# Go installation
 cd $HOME
 wget "https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
@@ -79,17 +80,20 @@ make build
 make install
 sleep 1
 
-
+$EXECUTE config chain-id $CHAIN_ID
+$EXECUTE config keyring-backend test
+$EXECUTE config node tcp://localhost:15557
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 
 # Set peers and seeds
-sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
+# sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 
 # Download genesis and addrbook
 curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
 curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
+
 
 # Set Config Pruning
 pruning="custom"
@@ -103,7 +107,7 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0001$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 
 # Creating your systemd service
@@ -123,33 +127,20 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 EOF
 
+sleep 3 
 
-
-
-#state sync
+#fast sync with snapshot
+SNAPSHOT=
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
-
-STATE_SYNC_RPC=
-STATE_SYNC_PEER=
-
-LATEST_HEIGHT=$(curl -s $STATE_SYNC_RPC/block | jq -r .result.block.header.height)
-SYNC_BLOCK_HEIGHT=$(($LATEST_HEIGHT - 1000))
-SYNC_BLOCK_HASH=$(curl -s "$STATE_SYNC_RPC/block?height=$SYNC_BLOCK_HEIGHT" | jq -r .result.block_id.hash)
-sed -i \
-  -e "s|^enable *=.*|enable = true|" \
-  -e "s|^rpc_servers *=.*|rpc_servers = \"$STATE_SYNC_RPC,$STATE_SYNC_RPC\"|" \
-  -e "s|^trust_height *=.*|trust_height = $SYNC_BLOCK_HEIGHT|" \
-  -e "s|^trust_hash *=.*|trust_hash = \"$SYNC_BLOCK_HASH\"|" \
-  -e "s|^persistent_peers *=.*|persistent_peers = \"$STATE_SYNC_PEER\"|" \
-  $HOME/$SYSTEM_FOLDER/config/config.toml
+rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
-
-
+curl -L $SNAPSHOT | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
 
 sudo systemctl daemon-reload
 sudo systemctl enable $EXECUTE
 sudo systemctl restart $EXECUTE
+
 
 echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
