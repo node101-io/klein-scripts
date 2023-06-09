@@ -9,5 +9,6 @@
     "osmosis": "https://node101.io/mainnet/osmosis.sh",
     "iris": "https://node101.io/mainnet/iris.sh",
     "sommelier": "https://node101.io/mainnet/sommelier.sh",
-    "stride": "https://node101.io/mainnet/stride.sh"
+    "stride": "https://node101.io/mainnet/stride.sh",
+    "akash": "https://node101.io/mainnet/akash.sh"
 }
