@@ -16,7 +16,7 @@ echo -e '\e[0m'
 
 GO_VERSION="1.20.4"
 REPO="https://github.com/celestiaorg/celestia-node.git"
-VERSION=v0.9.5
+VERSION=v0.10.2
 EXECUTE="celestia-lightd"
 PORT=26
 SYSTEM_FOLDER=.celestia-light-blockspacerace-0
