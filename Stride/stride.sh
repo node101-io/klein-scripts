@@ -133,6 +133,9 @@ EOF
 
 #fast sync with snapshot
 SNAPSHOT=https://snapshots.polkachu.com/snapshots/stride/stride_4020519.tar.lz4
+cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
+rm -rf $HOME/$SYSTEM_FOLDER/data/*
+mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
 curl -L $SNAPSHOT | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
 
