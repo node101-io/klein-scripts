@@ -11,5 +11,6 @@
     "sommelier": "https://node101.io/mainnet/sommelier.sh",
     "stride": "https://node101.io/mainnet/stride.sh",
     "akash": "https://node101.io/mainnet/akash.sh",
-    "juno": "https://node101.io/mainnet/juno.sh"
+    "juno": "https://node101.io/mainnet/juno.sh",
+    "kujira": "https://node101.io/mainnet/kujira.sh"
 }
