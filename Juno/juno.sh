@@ -87,7 +87,7 @@ $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 
 # Set peers and seeds
-# sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
+sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 
 # Download genesis and addrbook
@@ -130,7 +130,7 @@ EOF
 sleep 3 
 
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.polkachu.com/snapshots/juno/juno_8628741.tar.lz4
+SNAPSHOT=https://snapshots.polkachu.com/snapshots/juno/juno_8643061.tar.lz4
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
