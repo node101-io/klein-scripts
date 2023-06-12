@@ -1,31 +1,3 @@
-#! /bin/bash
-
-echo -e '\e[0m'                                                              
-echo -e '@@@  @@@   @@@@@@   @@@@@@@   @@@@@@@@    @@@   @@@@@@@@     @@@'
-echo -e '@@@@ @@@  @@@@@@@@  @@@@@@@@  @@@@@@@@   @@@@  @@@@@@@@@@   @@@@'
-echo -e '@@!@!@@@  @@!  @@@  @@!  @@@  @@!       @@@!!  @@!   @@@@  @@@!!'
-echo -e '!@!!@!@!  !@!  @!@  !@!  @!@  !@!         !@!  !@!  @!@!@    !@!'
-echo -e '@!@ !!@!  @!@  !@!  @!@  !@!  @!!!:!:     @!@  @!@ @! !@!    @!@'
-echo -e '!@!  !!!  !@!  !!!  !@!  !!!  !!!!!::     !@!  !@!!!  !!!    !@!'
-echo -e '!!:  !!!  !!:  !!!  !!:  !!!  !!:         !!:  !!:!   !!!    !!:'
-echo -e ':!:  !:!  :!:  !:!  :!:  !:!  :!:         :!:  :!:    !:!    :!:'
-echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
-echo -e '\e[0m'
-
-# Variables
-
-EXECUTE=sommelier
-CHAIN_ID=sommelier-3
-SYSTEM_FOLDER=.sommelier
-PROJECT_FOLDER=sommelier
-VERSION=v6.0.0
-REPO=https://github.com/PeggyJV/sommelier
-GENESIS_FILE=https://snapshots.polkachu.com/genesis/sommelier/genesis.json
-ADDRBOOK=
-PORT=26
-DENOM=somm
-GO_VERSION=#! /bin/bash
-
 echo -e '\e[0m'                                                              
 echo -e '@@@  @@@   @@@@@@   @@@@@@@   @@@@@@@@    @@@   @@@@@@@@     @@@'
 echo -e '@@@@ @@@  @@@@@@@@  @@@@@@@@  @@@@@@@@   @@@@  @@@@@@@@@@   @@@@'
