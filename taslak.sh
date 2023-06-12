@@ -24,7 +24,7 @@ GENESIS_FILE=
 ADDRBOOK=
 PORT=26
 DENOM=
-GO_VERSION="1.19.3"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 PEERS=
 SEEDS=
 
