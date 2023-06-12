@@ -13,5 +13,6 @@
     "akash": "https://node101.io/mainnet/akash.sh",
     "juno": "https://node101.io/mainnet/juno.sh",
     "kujira": "https://node101.io/mainnet/kujira.sh",
-    "assetmantle": "https://node101.io/mainnet/assetmantle.sh"
+    "assetmantle": "https://node101.io/mainnet/assetmantle.sh",
+    "quicksilver": "https://node101.io/mainnet/quicksilver.sh"
 }
