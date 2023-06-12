@@ -132,9 +132,25 @@ WantedBy=multi-user.target
 EOF
 
 sleep 3 
+search_keyword="assetmantle"
+url="https://snapshots.polkachu.com/snapshots"
+
+# Get the JSON data from the URL
+json_data=$(curl -s "$url")
+
+# Extract the value within the <Key> element containing the search keyword
+result=$(echo "$json_data" | grep -o "<Key>[^<]*$search_keyword[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
+
+# Append the extracted result to the URL
+modified_url="${url}/${result}"
+
+# Print the modified URL
+
+
+
 
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.polkachu.com/snapshots/assetmantle/assetmantle_6119536.tar.lz4
+SNAPSHOT="$modified_url"
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
