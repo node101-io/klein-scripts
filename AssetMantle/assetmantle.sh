@@ -24,7 +24,7 @@ GENESIS_FILE=https://snapshots.polkachu.com/genesis/assetmantle/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/addrbook/assetmantle/addrbook.json
 PORT=26
 DENOM=umntl
-GO_VERSION="1.19.3"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 PEERS=
 SEEDS="10de5165a61dd83c768781d438748c14e11f4397@seed.assetmantle.one:26656"
 
