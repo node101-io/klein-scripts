@@ -24,7 +24,7 @@ GENESIS_FILE=https://snapshots.kjnodes.com/lava-testnet/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/lava-testnet/addrbook.json
 PORT=26
 DENOM=ulava
-GO_VERSION="1.20.4"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 PEERS=
 SEEDS="3f472746f46493309650e5a033076689996c8881@lava-testnet.rpc.kjnodes.com:14459"
 
