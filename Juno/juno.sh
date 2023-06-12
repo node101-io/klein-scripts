@@ -24,7 +24,7 @@ GENESIS_FILE=https://snapshots.polkachu.com/genesis/juno/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/addrbook/juno/addrbook.json
 PORT=26
 DENOM=ujuno
-GO_VERSION="1.19.3"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 PEERS="babc3f3f7804933265ec9c40ad94f4da8e9e0017@seed.rhinostake.com:12656,90b09362d9ce3845096c4938eea0dba682b0ad2c@juno-seed-new.blockpane.com:26656,ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:12656,20e1000e88125698264454a884812746c2eb4807@seeds.lavenderfive.com:12656,ea67180befe4d9ca71142d21ada8ff58cc08f71c@seeds.goldenratiostaking.net:1627,e1b058e5cfa2b836ddaa496b10911da62dcf182e@juno-seed-1.allnodes.me:26656,e726816f42831689eab9378d5d577f1d06d25716@juno-seed-2.allnodes.me:26656,ebc272824924ea1a27ea3183dd0b9ba713494f83@juno-mainnet-seed.autostake.com:27136,70fcee92283edc02340289b2a74e4ab1a0203848@seed-juno.freshstaking.com:39656,47d942718533d36823e16b9502c035ca9f318ef4@seeds.whispernode.com:12656,509f6dbae3133a9df177edea051b31e1210b117e@seed-juno-01.stakeflow.io:2307"
 SEEDS="7f593757c0cde8972ce929381d8ac8e446837811@178.18.255.244:26656,ebc272824924ea1a27ea3183dd0b9ba713494f83@juno-mainnet-peer.autostake.com:27136,70fcee92283edc02340289b2a74e4ab1a0203848@seed-juno.freshstaking.com:39656,3ee2034cf0180e4d50f7b3ed952472add3316faf@juno.peer.stavr.tech:1066,509f6dbae3133a9df177edea051b31e1210b117e@peer-juno-01.stakeflow.io:2307"
 

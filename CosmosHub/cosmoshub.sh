@@ -24,7 +24,7 @@ GENESIS_FILE=https://snapshots.kjnodes.com/cosmoshub/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/cosmoshub/addrbook.json
 PORT=26
 DENOM=uatom
-GO_VERSION="1.18.10"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 PEERS=
 SEEDS="400f3d9e30b69e78a7fb891f60d76fa3c73f0ecc@cosmoshub.rpc.kjnodes.com:13459"
 

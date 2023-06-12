@@ -24,7 +24,7 @@ GENESIS_FILE=https://snapshots.polkachu.com/genesis/kava/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/addrbook/kava/addrbook.json
 PORT=26
 DENOM=ukava
-GO_VERSION="1.19.3"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 PEERS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956"
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956,ebc272824924ea1a27ea3183dd0b9ba713494f83@kava-mainnet-seed.autostake.com:26656,7ab4b78fbe5ee9e3777b21464a3162bd4cc17f57@seed-kava-01.stakeflow.io:1206"
 

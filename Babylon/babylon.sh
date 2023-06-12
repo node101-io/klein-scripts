@@ -24,7 +24,7 @@ GENESIS_FILE=https://snap.hexnodes.co/babylon/genesis.json
 ADDRBOOK=https://snap.hexnodes.co/babylon/addrbook.json
 PORT=02
 DENOM=ubbn
-GO_VERSION="1.19.3" 
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//') 
 PEERS=""
 SEEDS="03ce5e1b5be3c9a81517d415f65378943996c864@18.207.168.204:26656,a5fabac19c732bf7d814cf22e7ffc23113dc9606@34.238.169.221:26656"
 

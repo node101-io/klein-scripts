@@ -24,7 +24,7 @@ GENESIS_FILE=https://snapshots.kjnodes.com/andromeda-testnet/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/andromeda-testnet/addrbook.json
 PORT=26
 DENOM=uandr
-GO_VERSION="1.19.3" 
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 PEERS="1ccba3e77b1e469df0518e469e4a3fbbb32f64ad@rpc.andromeda-testnet.mirror-reflection.com:31656,d5519e378247dfb61dfe90652d1fe3e2b3005a5b@andromeda-testnet.rpc.kjnodes.com:47656,c043b90a737b92b26b39c52c502d7468dc6b1481@46.0.203.78:22258,9d058b4c4eb63122dfab2278d8be1bf6bf07f9ef@65.109.86.236:26656,7ac17e470c16814be55aa02a1611b23a3fba3097@75.119.141.16:26656,c5f6021d8da08ff53e90725c0c2a77f8d65f5e03@195.201.195.40:26656,bcdd1b337504f2d3523f6d63a7de1a2641187908@154.26.130.175:26656,1d94f397352dc20be4b56e4bfd9305649cbac778@65.108.232.150:20095,749114faeb62649d94b8ed496efbdcd4a08b2e3e@136.243.93.134:20095"
 SEEDS="e711b6631c3e5bb2f6c389cbc5d422912b05316b@seed.ppnv.space:37256,5cfce64114f98e29878567bdd1adbebe18670fc6@andromeda-testnet-seed.itrocket.net:443,3f472746f46493309650e5a033076689996c8881@andromeda-testnet.rpc.kjnodes.com:47659"
 
