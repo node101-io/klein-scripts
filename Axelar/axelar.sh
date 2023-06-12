@@ -141,6 +141,8 @@ sudo systemctl daemon-reload
 sudo systemctl enable $EXECUTE
 sudo systemctl restart $EXECUTE
 
+echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
+
 
 echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
