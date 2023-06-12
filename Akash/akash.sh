@@ -25,12 +25,12 @@ ADDRBOOK=https://snapshots.polkachu.com/addrbook/akash/addrbook.json
 PORT=26
 DENOM=uakt
 GO_VERSION="1.19.9"
-PEERS="d1e47b071859497089c944dc082e920403484c1a@65.108.128.201:12856"
+PEERS="4acf579e2744268f834c713e894850995bbf0ffa@50.18.31.225:26656,86afe23f116ba4754a19819a55d153008eb74b48@15.164.87.75:26656,20180c45451739668f6e272e007818139dba31e7@88.198.62.198:2020,1bfbbf77beeb2c1ace50443478035a255a7e510f@136.24.44.100:26656,ebc272824924ea1a27ea3183dd0b9ba713494f83@akash-mainnet-peer.autostake.com:26696,9aa4c9097c818871e45aaca4118a9fe5e86c60e2@peer-akash-01.stakeflow.io:1506"
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:12856"
 
 sleep 2
 
-echo "export EXECUTE=${EXECUTE}" >> $HOME/.bash_profile
+echo "export EXECUTE=${EXECUTE}" >> $HOME/.bash_profiled
 echo "export CHAIN_ID=${CHAIN_ID}" >> $HOME/.bash_profile
 echo "export SYSTEM_FOLDER=${SYSTEM_FOLDER}" >> $HOME/.bash_profile
 echo "export PROJECT_FOLDER=${PROJECT_FOLDER}" >> $HOME/.bash_profile
