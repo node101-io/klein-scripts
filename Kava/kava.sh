@@ -130,7 +130,7 @@ EOF
 sleep 3 
 
 #fast sync with snapshot
-SNAPSHOT=https://dl2.quicksync.io/kava_2222-10-pruned.20230611.0210.tar.lz4
+SNAPSHOT=https://snapshots.polkachu.com/snapshots/kava/kava_5181172.tar.lz4
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
