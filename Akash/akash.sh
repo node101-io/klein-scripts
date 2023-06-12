@@ -125,6 +125,7 @@ EOF
 
 
 
+echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
 
 #Snapshot sync
 SNAPSHOT=https://snapshots.polkachu.com/snapshots/akash/akash_11415645.tar.lz4
