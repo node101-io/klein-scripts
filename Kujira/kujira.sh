@@ -24,7 +24,7 @@ GENESIS_FILE=https://snapshots.polkachu.com/genesis/kujira/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/addrbook/kujira/addrbook.json
 PORT=26
 DENOM=ukuji
-GO_VERSION="1.19.3"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 PEERS="ebc272824924ea1a27ea3183dd0b9ba713494f83@kujira-mainnet-peer.autostake.com:26796"
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:11856,20e1000e88125698264454a884812746c2eb4807@seeds.lavenderfive.com:11856,322abfd7c0bcdf8a3d98ccb46ae2572bae0e8301@seed-kujira.starsquid.io:15602,824fa337b806bd48ce9505d74ba3e5adea80da93@seeds.goldenratiostaking.net:1628,ebc272824924ea1a27ea3183dd0b9ba713494f83@kujira-mainnet-seed.autostake.com:26796,400f3d9e30b69e78a7fb891f60d76fa3c73f0ecc@kujira.rpc.kjnodes.com:11359,e1b058e5cfa2b836ddaa496b10911da62dcf182e@kujira-seed-1.allnodes.me:26656,c28827cb96c14c905b127b92065a3fb4cd77d7f6@seeds.whispernode.com:11856"
 
