@@ -24,7 +24,7 @@ GENESIS_FILE=https://snapshots.kjnodes.com/quicksilver/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/quicksilver/addrbook.json
 PORT=26
 DENOM=uqck
-GO_VERSION=#! /bin/bash
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 
 echo -e '\e[0m'                                                              
 echo -e '@@@  @@@   @@@@@@   @@@@@@@   @@@@@@@@    @@@   @@@@@@@@     @@@'
