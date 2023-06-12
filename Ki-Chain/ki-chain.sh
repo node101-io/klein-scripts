@@ -13,20 +13,20 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
-PROJECT=juno
-EXECUTE=junod
-CHAIN_ID=juno-1
-SYSTEM_FOLDER=.juno
-PROJECT_FOLDER=juno
-VERSION=v15.0.0
-REPO=https://github.com/CosmosContracts/juno.git
-GENESIS_FILE=https://snapshots.polkachu.com/genesis/juno/genesis.json
-ADDRBOOK=https://snapshots.polkachu.com/addrbook/juno/addrbook.json
+PROJECT=kichain
+EXECUTE=kid
+CHAIN_ID=kichain-2
+SYSTEM_FOLDER=.kid
+PROJECT_FOLDER=ki-tools
+VERSION="5.0.2"
+REPO=https://github.com/KiFoundation/ki-tools.git
+GENESIS_FILE=https://snapshots.polkachu.com/genesis/kichain/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/addrbook/kichain/addrbook.json
 PORT=26
-DENOM=ujuno
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS="babc3f3f7804933265ec9c40ad94f4da8e9e0017@seed.rhinostake.com:12656,90b09362d9ce3845096c4938eea0dba682b0ad2c@juno-seed-new.blockpane.com:26656,ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:12656,20e1000e88125698264454a884812746c2eb4807@seeds.lavenderfive.com:12656,ea67180befe4d9ca71142d21ada8ff58cc08f71c@seeds.goldenratiostaking.net:1627,e1b058e5cfa2b836ddaa496b10911da62dcf182e@juno-seed-1.allnodes.me:26656,e726816f42831689eab9378d5d577f1d06d25716@juno-seed-2.allnodes.me:26656,ebc272824924ea1a27ea3183dd0b9ba713494f83@juno-mainnet-seed.autostake.com:27136,70fcee92283edc02340289b2a74e4ab1a0203848@seed-juno.freshstaking.com:39656,47d942718533d36823e16b9502c035ca9f318ef4@seeds.whispernode.com:12656,509f6dbae3133a9df177edea051b31e1210b117e@seed-juno-01.stakeflow.io:2307"
-SEEDS="7f593757c0cde8972ce929381d8ac8e446837811@178.18.255.244:26656,ebc272824924ea1a27ea3183dd0b9ba713494f83@juno-mainnet-peer.autostake.com:27136,70fcee92283edc02340289b2a74e4ab1a0203848@seed-juno.freshstaking.com:39656,3ee2034cf0180e4d50f7b3ed952472add3316faf@juno.peer.stavr.tech:1066,509f6dbae3133a9df177edea051b31e1210b117e@peer-juno-01.stakeflow.io:2307"
+DENOM=uxki
+GO_VERSION="1.19.9"
+PEERS="41b321292cbe50c5c30017cc71c404481be0e20b@3.38.12.5:26656,e7bab76ef15493aaee6f91a0652ba098838a0bfb@kichain-peer.panthea.eu:28656"
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13556"
 
 sleep 2
 
@@ -111,7 +111,7 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.075$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.025$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 
 # Creating your systemd service
@@ -124,8 +124,8 @@ After=network-online.target
 User=$USER
 ExecStart=$(which $EXECUTE) start --home $HOME/$SYSTEM_FOLDER
 Restart=on-failure
-RestartSec=10
-LimitNOFILE=65535
+RestartSec=3
+LimitNOFILE=4096
 
 [Install]
 WantedBy=multi-user.target

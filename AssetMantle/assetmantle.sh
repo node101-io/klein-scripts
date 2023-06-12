@@ -13,7 +13,7 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
-
+PROJECT=assetmantle
 EXECUTE=mantleNode
 CHAIN_ID=mantle-1
 SYSTEM_FOLDER=.mantleNode
@@ -134,11 +134,12 @@ EOF
 sleep 3 
 
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.polkachu.com/snapshots/assetmantle/assetmantle_6119536.tar.lz4
+wget -q -O - https://polkachu.com/tendermint_snapshots/${PROJECT} > webpage.html
+SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
-curl -L $SNAPSHOT | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
+curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
 
 sudo systemctl daemon-reload
