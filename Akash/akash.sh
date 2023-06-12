@@ -127,8 +127,23 @@ EOF
 
 echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
 
-#Snapshot sync
-SNAPSHOT=https://snapshots.polkachu.com/snapshots/akash/akash_11415645.tar.lz4
+#sync
+search_keyword="akash"
+url="https://snapshots.polkachu.com/snapshots"
+
+# Get the JSON data from the URL
+json_data=$(curl -s "$url")
+
+# Extract the value within the <Key> element containing the search keyword
+result=$(echo "$json_data" | grep -o "<Key>[^<]*$search_keyword[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
+
+# Append the extracted result to the URL
+modified_url="${url}/${result}"
+
+# Print the modified URL
+
+
+SNAPSHOT="$modified_url"
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
