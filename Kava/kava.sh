@@ -13,7 +13,9 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
-
+# $PROJECT must be in quotation marks
+PROJECT="kava"
+URL=https://snapshots.polkachu.com/snapshots
 EXECUTE=kava
 CHAIN_ID=kava_2222-10
 SYSTEM_FOLDER=.kava
@@ -130,11 +132,13 @@ EOF
 sleep 3 
 
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.polkachu.com/snapshots/kava/kava_5181172.tar.lz4
+JSON_DATA=$(curl -s "$URL")
+RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
+SNAPSHOT=${URL}/${RESULT}
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
-curl -L $SNAPSHOT | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
+curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
 
 sudo systemctl daemon-reload

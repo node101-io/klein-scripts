@@ -13,7 +13,8 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
-
+PROJECT="axelar"
+URL=https://snapshots.polkachu.com/snapshots
 EXECUTE=axelard
 CHAIN_ID=axelar-dojo-1
 SYSTEM_FOLDER=.axelar
@@ -53,10 +54,12 @@ if [ ! $MONIKER ]; then
 	echo 'export MONIKER='$MONIKER >> $HOME/.bash_profile
 fi
 
+echo "5 installation_progress"
 
 # Updates
 sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
 
+echo "30 installation_progress"
 
 # Go installation
 cd $HOME
@@ -68,6 +71,7 @@ echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 go version
 
+echo "60 installation_progress"
 
 sleep 1
 
@@ -94,6 +98,7 @@ sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config
 curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
 curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 
+echo "85 installation_progress"
 
 # Set Config Pruning
 pruning="custom"
@@ -129,22 +134,14 @@ EOF
 
 sleep 3 
 
-search_keyword="axelar"
-url="https://snapshots.polkachu.com/snapshots"
-
-# Get the JSON data from the URL
-json_data=$(curl -s "$url")
-
-# Extract the value within the <Key> element containing the search keyword
-result=$(echo "$json_data" | grep -o "<Key>[^<]*$search_keyword[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
-
-# Append the extracted result to the URL
-SNAPSHOT="${url}/${result}"
-
+#Snapshot sync
+JSON_DATA=$(curl -s "$URL")
+RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
+SNAPSHOT=${URL}/${RESULT}
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
-curl -L $SNAPSHOT | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
+curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
 
 sudo systemctl daemon-reload
@@ -153,6 +150,7 @@ sudo systemctl restart $EXECUTE
 
 echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
 
+echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
 
 echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"

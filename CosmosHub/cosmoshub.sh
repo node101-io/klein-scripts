@@ -13,18 +13,20 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
-
+# $PROJECT must be in quotation marks
+PROJECT="cosmos"
+URL=https://snapshots.polkachu.com/snapshots
 EXECUTE=gaiad
 CHAIN_ID=cosmoshub-4
 SYSTEM_FOLDER=.gaia
 PROJECT_FOLDER=gaia
-VERSION=v9.0.0
+VERSION=v9.1.1
 REPO=https://github.com/cosmos/gaia.git
 GENESIS_FILE=https://snapshots.kjnodes.com/cosmoshub/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/cosmoshub/addrbook.json
 PORT=26
 DENOM=uatom
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
+GO_VERSION="1.18"
 PEERS=
 SEEDS="400f3d9e30b69e78a7fb891f60d76fa3c73f0ecc@cosmoshub.rpc.kjnodes.com:13459"
 
@@ -134,11 +136,13 @@ EOF
 sleep 3 
 
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.kjnodes.com/cosmoshub/snapshot_latest.tar.lz4
+JSON_DATA=$(curl -s "$URL")
+RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
+SNAPSHOT=${URL}/${RESULT}
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
-curl -L $SNAPSHOT | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
+curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
 
 sudo systemctl daemon-reload
@@ -151,4 +155,3 @@ echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
 echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:${PORT}657/status | jq .result.sync_info\e[0m"
 source $HOME/.bash_profile
-

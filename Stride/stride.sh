@@ -13,7 +13,9 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
-
+# $PROJECT must be in quotation marks
+PROJECT="stride"
+URL=https://snapshots.polkachu.com/snapshots
 EXECUTE=strided
 CHAIN_ID=stride-1
 SYSTEM_FOLDER=.stride
@@ -131,12 +133,15 @@ EOF
 
 
 
+
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.kjnodes.com/stride/snapshot_latest.tar.lz4
+JSON_DATA=$(curl -s "$URL")
+RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
+SNAPSHOT=${URL}/${RESULT}
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
-curl -L $SNAPSHOT | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
+curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
 
 

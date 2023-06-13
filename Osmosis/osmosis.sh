@@ -13,7 +13,8 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
-
+PROJECT="osmosis"
+URL=https://snapshots.polkachu.com/snapshots
 EXECUTE=osmosisd
 CHAIN_ID=osmosis-1
 SYSTEM_FOLDER=.osmosisd
@@ -126,8 +127,13 @@ WantedBy=multi-user.target
 EOF
 
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.kjnodes.com/osmosis/snapshot_latest.tar.lz4
-curl -L $SNAPSHOT | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
+JSON_DATA=$(curl -s "$URL")
+RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
+SNAPSHOT=${URL}/${RESULT}
+cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
+rm -rf $HOME/$SYSTEM_FOLDER/data/*
+mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
+curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
 sudo systemctl daemon-reload
 sudo systemctl enable $EXECUTE
