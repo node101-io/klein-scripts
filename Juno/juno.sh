@@ -13,7 +13,8 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
-PROJECT=juno
+PROJECT="juno"
+URL=https://snapshots.polkachu.com/snapshots
 EXECUTE=junod
 CHAIN_ID=juno-1
 SYSTEM_FOLDER=.juno
@@ -134,8 +135,9 @@ EOF
 sleep 3 
 
 #fast sync with snapshot
-wget -q -O - https://polkachu.com/tendermint_snapshots/${PROJECT} > webpage.html
-SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
+JSON_DATA=$(curl -s "$URL")
+RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
+SNAPSHOT=${URL}/${RESULT}
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
