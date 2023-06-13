@@ -14,21 +14,21 @@ echo -e '\e[0m'
 
 # Variables
 # $PROJECT must be in quotation marks
-PROJECT="kava"
+PROJECT="evmos"
 URL=https://snapshots.polkachu.com/snapshots
-EXECUTE=kava
-CHAIN_ID=kava_2222-10
-SYSTEM_FOLDER=.kava
-PROJECT_FOLDER=kava
-VERSION=v0.23.2
-REPO=https://github.com/Kava-Labs/kava.git
-GENESIS_FILE=https://snapshots.polkachu.com/genesis/kava/genesis.json
-ADDRBOOK=https://snapshots.polkachu.com/addrbook/kava/addrbook.json
+EXECUTE=evmosd
+CHAIN_ID=evmos_9001-2
+SYSTEM_FOLDER=.evmosd
+PROJECT_FOLDER=evmos
+VERSION=v12.1.5
+REPO=https://github.com/tharsis/evmos.git
+GENESIS_FILE=https://snapshots.polkachu.com/genesis/evmos/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/addrbook/evmos/addrbook.json
 PORT=26
-DENOM=ukava
+DENOM=aevmos
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956"
-SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956,ebc272824924ea1a27ea3183dd0b9ba713494f83@kava-mainnet-seed.autostake.com:26656,7ab4b78fbe5ee9e3777b21464a3162bd4cc17f57@seed-kava-01.stakeflow.io:1206"
+PEERS="7aa31684d201f8ebc0b1e832d90d7490345d77ee@52.10.99.253:26656,5740e4a36e646e80cc5648daf5e983e5b5d8f265@54.39.18.27:26656,588cedb70fa1d98c14a2f2c1456bfa41e1a156a8@evmos-sentry.mercury-nodes.net:29539,ebc272824924ea1a27ea3183dd0b9ba713494f83@evmos-mainnet-peer.autostake.com:26736,ac009a9564d3471852795b5d703095a1d4b6a3e1@peer-evmos-01.stakeflow.io:1707"
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13456"
 
 sleep 2
 
@@ -113,7 +113,7 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.01$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"80000000000$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 
 # Creating your systemd service
@@ -126,8 +126,8 @@ After=network-online.target
 User=$USER
 ExecStart=$(which $EXECUTE) start --home $HOME/$SYSTEM_FOLDER
 Restart=on-failure
-RestartSec=3
-LimitNOFILE=4096
+RestartSec=10
+LimitNOFILE=65535
 
 [Install]
 WantedBy=multi-user.target

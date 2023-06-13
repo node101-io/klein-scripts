@@ -14,21 +14,21 @@ echo -e '\e[0m'
 
 # Variables
 # $PROJECT must be in quotation marks
-PROJECT="kava"
+PROJECT="neutron"
 URL=https://snapshots.polkachu.com/snapshots
-EXECUTE=kava
-CHAIN_ID=kava_2222-10
-SYSTEM_FOLDER=.kava
-PROJECT_FOLDER=kava
-VERSION=v0.23.2
-REPO=https://github.com/Kava-Labs/kava.git
-GENESIS_FILE=https://snapshots.polkachu.com/genesis/kava/genesis.json
-ADDRBOOK=https://snapshots.polkachu.com/addrbook/kava/addrbook.json
+EXECUTE=neutrond
+CHAIN_ID=neutron-1
+SYSTEM_FOLDER=.neutrond
+PROJECT_FOLDER=neutron
+VERSION=v1.0.2
+REPO=https://github.com/neutron-org/neutron.git
+GENESIS_FILE=https://snapshots.polkachu.com/genesis/neutron/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/addrbook/neutron/addrbook.json
 PORT=26
-DENOM=ukava
+DENOM=untrn
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956"
-SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956,ebc272824924ea1a27ea3183dd0b9ba713494f83@kava-mainnet-seed.autostake.com:26656,7ab4b78fbe5ee9e3777b21464a3162bd4cc17f57@seed-kava-01.stakeflow.io:1206"
+PEERS="e5d2743d9a3de514e4f7b9461bf3f0c1500c58d9@neutron.peer.stakewith.us:39956"
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:19156"
 
 sleep 2
 
@@ -126,8 +126,8 @@ After=network-online.target
 User=$USER
 ExecStart=$(which $EXECUTE) start --home $HOME/$SYSTEM_FOLDER
 Restart=on-failure
-RestartSec=3
-LimitNOFILE=4096
+RestartSec=10
+LimitNOFILE=65535
 
 [Install]
 WantedBy=multi-user.target

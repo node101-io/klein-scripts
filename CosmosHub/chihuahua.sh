@@ -14,21 +14,21 @@ echo -e '\e[0m'
 
 # Variables
 # $PROJECT must be in quotation marks
-PROJECT="kava"
+PROJECT="chihuahua"
 URL=https://snapshots.polkachu.com/snapshots
-EXECUTE=kava
-CHAIN_ID=kava_2222-10
-SYSTEM_FOLDER=.kava
-PROJECT_FOLDER=kava
-VERSION=v0.23.2
-REPO=https://github.com/Kava-Labs/kava.git
-GENESIS_FILE=https://snapshots.polkachu.com/genesis/kava/genesis.json
-ADDRBOOK=https://snapshots.polkachu.com/addrbook/kava/addrbook.json
+EXECUTE=chihuahuad
+CHAIN_ID=chihuahua-1
+SYSTEM_FOLDER=.chihuahuad
+PROJECT_FOLDER=chihuahua
+VERSION=v4.2.3
+REPO=https://github.com/ChihuahuaChain/chihuahua.git
+GENESIS_FILE=https://snapshots.polkachu.com/genesis/chihuahua/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/addrbook/chihuahua/addrbook.json
 PORT=26
-DENOM=ukava
+DENOM=uhuahua
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956"
-SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956,ebc272824924ea1a27ea3183dd0b9ba713494f83@kava-mainnet-seed.autostake.com:26656,7ab4b78fbe5ee9e3777b21464a3162bd4cc17f57@seed-kava-01.stakeflow.io:1206"
+PEERS="765ab0e15d4bcd7533b4bad8e596a1c42264a4fe@65.108.128.201:12956"
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:12956"
 
 sleep 2
 
@@ -113,7 +113,7 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.01$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"10$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 
 # Creating your systemd service
@@ -126,8 +126,8 @@ After=network-online.target
 User=$USER
 ExecStart=$(which $EXECUTE) start --home $HOME/$SYSTEM_FOLDER
 Restart=on-failure
-RestartSec=3
-LimitNOFILE=4096
+RestartSec=10
+LimitNOFILE=65535
 
 [Install]
 WantedBy=multi-user.target
