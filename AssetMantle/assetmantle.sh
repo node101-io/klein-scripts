@@ -13,7 +13,8 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
-PROJECT=assetmantle
+PROJECT="assetmantle"
+URL=https://snapshots.polkachu.com/snapshots
 EXECUTE=mantleNode
 CHAIN_ID=mantle-1
 SYSTEM_FOLDER=.mantleNode
@@ -132,26 +133,12 @@ WantedBy=multi-user.target
 EOF
 
 sleep 3 
-search_keyword="assetmantle"
-url="https://snapshots.polkachu.com/snapshots"
-
-# Get the JSON data from the URL
-json_data=$(curl -s "$url")
-
-# Extract the value within the <Key> element containing the search keyword
-result=$(echo "$json_data" | grep -o "<Key>[^<]*$search_keyword[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
-
-# Append the extracted result to the URL
-modified_url="${url}/${result}"
-
-# Print the modified URL
 
 
-
-
-#fast sync with snapshot
-wget -q -O - https://polkachu.com/tendermint_snapshots/${PROJECT} > webpage.html
-SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
+# Extract URL from the snapshot JSON data
+JSON_DATA=$(curl -s "$URL")
+RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
+SNAPSHOT=${URL}/${RESULT}
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
