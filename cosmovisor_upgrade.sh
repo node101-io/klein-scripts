@@ -1,3 +1,6 @@
+#! /bin/bash
+
+
 go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@latest
 
 echo "export DAEMON_NAME=${EXECUTE}" >> $HOME/.bash_profile
