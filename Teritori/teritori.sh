@@ -13,20 +13,22 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
-CHAIN_ID=kava_2222-10
-URL=http://snapshots.autostake.com/${CHAIN_ID}
-EXECUTE=kava
-SYSTEM_FOLDER=.kava
-PROJECT_FOLDER=kava
-VERSION=v0.23.2
-REPO=https://github.com/Kava-Labs/kava.git
-GENESIS_FILE=https://snapshots.polkachu.com/genesis/kava/genesis.json
-ADDRBOOK=https://snapshots.polkachu.com/addrbook/kava/addrbook.json
+# $PROJECT must be in quotation marks
+PROJECT="teritori"
+URL=https://snapshots.polkachu.com/snapshots
+EXECUTE=teritorid
+CHAIN_ID=teritori-1
+SYSTEM_FOLDER=.teritorid
+PROJECT_FOLDER=teritori-chain
+VERSION=v1.4.0
+REPO=https://github.com/TERITORI/teritori-chain.git
+GENESIS_FILE=https://snapshots.polkachu.com/genesis/teritori/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/addrbook/teritori/addrbook.json
 PORT=26
-DENOM=ukava
+DENOM=utori
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956"
-SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956,ebc272824924ea1a27ea3183dd0b9ba713494f83@kava-mainnet-seed.autostake.com:26656,7ab4b78fbe5ee9e3777b21464a3162bd4cc17f57@seed-kava-01.stakeflow.io:1206"
+PEERS="8f28518afd31a42ea81bb3232a50ab0cec4dcdf7@10.201.190.1:26656,6046cec27c36f0a7596cb9fa9f2c5decbd4e87cb@10.193.255.1:26656,ad347ea1ec920d12ccda2341348bcc89687739ef@teritori.peers.stavr.tech:38026,ebc272824924ea1a27ea3183dd0b9ba713494f83@teritori-mainnet-peer.autostake.com:27166"
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:15956"
 
 sleep 2
 
@@ -53,12 +55,10 @@ if [ ! $MONIKER ]; then
 	echo 'export MONIKER='$MONIKER >> $HOME/.bash_profile
 fi
 
-echo "5 installation_progress"
 
 # Updates
 sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
 
-echo "30 installation_progress"
 
 # Go installation
 cd $HOME
@@ -70,7 +70,6 @@ echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 go version
 
-echo "60 installation_progress"
 
 sleep 1
 
@@ -97,7 +96,6 @@ sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config
 curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
 curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 
-echo "85 installation_progress"
 
 # Set Config Pruning
 pruning="custom"
@@ -111,7 +109,7 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.01$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.000$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 
 # Creating your systemd service
@@ -124,8 +122,8 @@ After=network-online.target
 User=$USER
 ExecStart=$(which $EXECUTE) start --home $HOME/$SYSTEM_FOLDER
 Restart=on-failure
-RestartSec=3
-LimitNOFILE=4096
+RestartSec=10
+LimitNOFILE=65535
 
 [Install]
 WantedBy=multi-user.target
@@ -134,7 +132,8 @@ EOF
 sleep 3 
 
 #fast sync with snapshot
-RESULT=$(curl -s $URL/ | egrep -o ">${CHAIN_ID}.*.tar.lz4" | tr -d ">" | tail -1)
+JSON_DATA=$(curl -s "$URL")
+RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
 SNAPSHOT=${URL}/${RESULT}
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
@@ -146,7 +145,6 @@ sudo systemctl daemon-reload
 sudo systemctl enable $EXECUTE
 sudo systemctl restart $EXECUTE
 
-echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
 
 echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
