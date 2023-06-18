@@ -25,7 +25,7 @@ ADDRBOOK=https://api-minio-nord.imperator.co/addrbook/iris/addrbook.json
 PORT=26
 DENOM=uiris
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS="b037e8fd1598a37a4773fa4b71ccdd2ae8d0b186@39.105.215.48:26656,107448aea4609790c7b710c03d29b70bfa7e8c9f@5.9.99.172:22656,fcc1d9bc43163b20ce5163cf41a302b33f25375f@34.82.96.8:26656,fca15d1a704507487c6d094ae67e56156253a735@13.113.233.138:26656,363430f2533f0b284c156e846b6934bb7e09ea82@35.221.235.168:26656,35d8743585e09151ada67003c43ac2b0cee36d0f@5.161.68.228:26656,b212d5740b2e11e54f56b072dc13b6134650cfb5@134.65.192.157:26656,68a5dbab2686566290c5431f203934c628d6e5b3@185.16.38.234:26656,3c59671586a77c3a81e3e2c8052a8a578a6de5f8@195.201.63.87:37666"
+PEERS=
 SEEDS="6a6de770deaa4b8c061dffd82e9c7f4d40c2165d@seed-1.mainnet.irisnet.org:26656,a17d7923293203c64ba75723db4d5f28e642f469@seed-2.mainnet.irisnet.org:26656,e1b058e5cfa2b836ddaa496b10911da62dcf182e@iris-seed-1.allnodes.me:26656,445b38a181d147c243185d94567412e5c5f1a22c@seed-irisnet-01.stakeflow.io:1906"
 
 sleep 2
@@ -53,10 +53,12 @@ if [ ! $MONIKER ]; then
 	echo 'export MONIKER='$MONIKER >> $HOME/.bash_profile
 fi
 
+echo "5 installation_progress"
 
 # Updates
 sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
 
+echo "30 installation_progress"
 
 # Go installation
 cd $HOME
@@ -68,6 +70,7 @@ echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 go version
 
+echo "60 installation_progress"
 
 sleep 1
 
@@ -87,7 +90,7 @@ $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 
 # Set peers and seeds
-sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
+# sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^evm_chain_id *=.*|evm_chain_id = \"$EVM_CHAIN_ID\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 
@@ -95,6 +98,7 @@ sed -i -e "s|^evm_chain_id *=.*|evm_chain_id = \"$EVM_CHAIN_ID\"|" $HOME/$SYSTEM
 curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
 curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 
+echo "85 installation_progress"
 
 # Set Config Pruning
 pruning="custom"
@@ -142,6 +146,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable $EXECUTE
 sudo systemctl restart $EXECUTE
 
+echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
 
 echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
