@@ -1,31 +1,29 @@
 {
-    "testnets": {
-        "andromeda": "https://node101.io/testnet/andromeda.sh",
-        "juno": "https://node101.io/testnet/juno.sh",
-        "babylon": "https://node101.io/testnet/babylon.sh",
-        "nibiru": "https://node101.io/testnet/nibiru.sh",
-        "sui": "https://node101.io/testnet/sui.sh",
-        "lava": "https://node101.io/testnet/lava.sh",
-        "celestia": [
-            "https://node101.io/testnet/celestia-light.sh",
-            "https://node101.io/testnet/celestia-bridge.sh",
-            "https://node101.io/testnet/celestia-full.sh"
-        ]
-    },
-    "mainnets": {
-        "akash": "https://node101.io/mainnet/akash.sh",
-        "assetmantle": "https://node101.io/mainnet/assetmantle.sh",
-        "axelar": "https://node101.io/mainnet/axelar.sh",
-        "canto": "https://node101.io/mainnet/assetmantle.sh",
-        "chihuahua": "https://node101.io/mainnet/chihuahua.sh",
-        "cosmoshub": "https://node101.io/mainnet/cosmoshub.sh",
-        "crescent": "https://node101.io/mainnet/crescent.sh",
-        "juno": "https://node101.io/mainnet/juno.sh",
-        "osmosis": "https://node101.io/mainnet/osmosis.sh",
-        "iris": "https://node101.io/mainnet/iris.sh",
-        "sommelier": "https://node101.io/mainnet/sommelier.sh",
-        "stride": "https://node101.io/mainnet/stride.sh",
-        "kujira": "https://node101.io/mainnet/kujira.sh",
-        "quicksilver": "https://node101.io/mainnet/quicksilver.sh"
-    }
+    "testnets": [
+        "andromeda",
+        "juno",
+        "babylon",
+        "nibiru",
+        "sui",
+        "lava",
+        "celestia-full",
+        "celestia-light",
+        "celestia-bridge"
+    ],
+    "mainnets": [
+        "akash",
+        "assetmantle",
+        "axelar",
+        "canto",
+        "chihuahua",
+        "cosmoshub",
+        "crescent",
+        "juno",
+        "osmosis",
+        "iris",
+        "sommelier",
+        "stride",
+        "kujira",
+        "quicksilver"
+    ]
 }
