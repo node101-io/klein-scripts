@@ -5,7 +5,7 @@
         "babylon",
         "nibiru",
         "sui",
-        "lava",
+        "lava-network",
         "celestia-full",
         "celestia-light",
         "celestia-bridge"
@@ -16,7 +16,7 @@
         "axelar",
         "canto",
         "chihuahua",
-        "cosmoshub",
+        "cosmos-hub",
         "crescent",
         "juno",
         "osmosis",
