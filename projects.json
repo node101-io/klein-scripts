@@ -1,6 +1,7 @@
 {
     "testnets": {
         "andromeda": "https://node101.io/testnet/andromeda.sh",
+        "cosmoshub": "https://node101.io/testnet/cosmoshub.sh",
         "juno": "https://node101.io/testnet/juno.sh",
         "babylon": "https://node101.io/testnet/babylon.sh",
         "nibiru": "https://node101.io/testnet/nibiru.sh",
