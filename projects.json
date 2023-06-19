@@ -7,9 +7,9 @@
         "sui": "https://node101.io/testnet/sui.sh",
         "lava": "https://node101.io/testnet/lava.sh",
         "celestia": [
-            "https://node101.io/celestia/celestia_light.sh",
-            "https://node101.io/celestia/celestia_bridge.sh",
-            "https://node101.io/celestia/celestia_full.sh"
+            "https://node101.io/testnet/celestia-light.sh",
+            "https://node101.io/testnet/celestia-bridge.sh",
+            "https://node101.io/testnet/celestia-full.sh"
         ]
     },
     "mainnets": {
