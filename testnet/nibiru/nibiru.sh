@@ -83,9 +83,10 @@ git checkout $VERSION
 make install
 nibid version # v0.19.2
 
-$EXECUTE config keyring-backend test
 $EXECUTE config chain-id $CHAIN_ID
-$EXECUTE init "$MONIKER" --chain-id $CHAIN_ID
+$EXECUTE config keyring-backend test
+$EXECUTE config node tcp://localhost:26657
+$EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 curl -s $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 wget $GENESIS_FILE -O $SYSTEM_FOLDER/config/genesis.json

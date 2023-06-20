@@ -87,9 +87,8 @@ sleep 1
 
 $EXECUTE config chain-id $CHAIN_ID
 $EXECUTE config keyring-backend test
-$EXECUTE config node tcp://localhost:15557
+$EXECUTE config node tcp://localhost:26657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
-
 
 # Set peers and seeds
 sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml

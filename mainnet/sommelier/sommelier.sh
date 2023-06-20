@@ -89,7 +89,7 @@ echo "65 installation_progress"
 
 $EXECUTE config chain-id $CHAIN_ID
 $EXECUTE config keyring-backend test
-$EXECUTE config node tcp://localhost:15557
+$EXECUTE config node tcp://localhost:26657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 
