@@ -13,20 +13,20 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
-
+PROJECT=lava
 EXECUTE=lavad
 CHAIN_ID=lava-testnet-1
 SYSTEM_FOLDER=.lava
 PROJECT_FOLDER=lava
-VERSION=v0.12.1-hf
+VERSION=v0.14.0
 REPO=https://github.com/lavanet/lava.git
-GENESIS_FILE=https://snapshots.kjnodes.com/lava-testnet/genesis.json
-ADDRBOOK=https://snapshots.kjnodes.com/lava-testnet/addrbook.json
+GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/lava/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/lava/addrbook.json
 PORT=26
 DENOM=ulava
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 PEERS=
-SEEDS="3f472746f46493309650e5a033076689996c8881@lava-testnet.rpc.kjnodes.com:14459"
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:19956"
 
 sleep 2
 
@@ -134,11 +134,12 @@ EOF
 sleep 3 
 
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.kjnodes.com/lava-testnet/snapshot_latest.tar.lz4
+wget -q -O - https://polkachu.com/testnets/${PROJECT}/snapshots > webpage.html
+SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/testnet-snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
-curl -L $SNAPSHOT | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
+curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
 
 sudo systemctl daemon-reload
