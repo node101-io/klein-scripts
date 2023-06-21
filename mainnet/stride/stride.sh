@@ -20,10 +20,10 @@ EXECUTE=strided
 CHAIN_ID=stride-1
 SYSTEM_FOLDER=.stride
 PROJECT_FOLDER=stride
-VERSION=v9.2.1
+VERSION=v10.0.0
 REPO=https://github.com/Stride-Labs/stride.git
-GENESIS_FILE=https://snapshots.kjnodes.com/stride/genesis.json
-ADDRBOOK=https://snapshots.kjnodes.com/stride/addrbook.json
+GENESIS_FILE=https://snapshots.polkachu.com/genesis/stride/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/addrbook/stride/addrbook.json
 PORT=26
 DENOM=ustrd
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
