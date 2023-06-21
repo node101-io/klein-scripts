@@ -15,21 +15,20 @@ echo -e '\e[0m'
 # Variables
 # $PROJECT must be in quotation marks
 PROJECT="cosmos"
-SNAPSHOT_URL=https://snapshots.polkachu.com/snapshots
-VERSION_URL=https://polkachu.com/networks/cosmos
+URL=https://snapshots.polkachu.com/snapshots
 EXECUTE=gaiad
 CHAIN_ID=cosmoshub-4
 SYSTEM_FOLDER=.gaia
 PROJECT_FOLDER=gaia
-VERSION=curl -s $VERSION_URL | grep -oP 'Current Node Version: \K[^<]*'
+VERSION=v10.0.1
 REPO=https://github.com/cosmos/gaia.git
-GENESIS_FILE=https://snapshots.kjnodes.com/cosmoshub/genesis.json
-ADDRBOOK=https://snapshots.kjnodes.com/cosmoshub/addrbook.json
+GENESIS_FILE=https://snapshots.polkachu.com/genesis/cosmos/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/addrbook/cosmos/addrbook.json
 PORT=26
 DENOM=uatom
-GO_VERSION="1.18"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 PEERS=
-SEEDS="400f3d9e30b69e78a7fb891f60d76fa3c73f0ecc@cosmoshub.rpc.kjnodes.com:13459"
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:14956"
 
 sleep 2
 
