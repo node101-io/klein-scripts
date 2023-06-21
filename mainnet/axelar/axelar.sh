@@ -25,9 +25,9 @@ GENESIS_FILE=https://snapshots.polkachu.com/genesis/axelar/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/addrbook/axelar/addrbook.json
 PORT=26
 DENOM=uaxl
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
+GO_VERSION="v1.19.9"
 PEERS="353f7d0962594bcbfb63c81594e35e39c4c89a1a@18.223.127.165:26656,ebc272824924ea1a27ea3183dd0b9ba713494f83@axelar-mainnet-peer.autostake.com:26826,3470414cd299d15911e9bb28557f6bffb8e514c6@peer-axelar-01.stakeflow.io:1606,381d7961c9e44bc25e02d60b94c26763a42db045@65.21.91.99:16756"
-SEEDS="3d67d0646cddcc203b41434aceea64ade22ba6fc@k8s-mainnet-axelarco-79b464ee93-f03cb16c57cf7cb2.elb.us-east-2.amazonaws.com:26656,9c9b8eb8cad8648f31d3c9da3d14e825f11a7b52@public-seed.mainnet.axelar.lunanova.tech:26656,ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:15156,ebc272824924ea1a27ea3183dd0b9ba713494f83@axelar-mainnet-seed.autostake.com:26826,1e5c0b8f4431b0881edbd04537f4351bd7f19afc@seeds.whispernode.com:15156,3470414cd299d15911e9bb28557f6bffb8e514c6@seed-axelar-01.stakeflow.io:1606"
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:15156"
 
 sleep 2
 

@@ -13,20 +13,20 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
-
+PROJECT=babylon
 EXECUTE=babylond
-CHAIN_ID=bbn-test1
+CHAIN_ID=bbn-test-2
 SYSTEM_FOLDER=.babylond
-PROJECT_FOLDER=babylon 
-VERSION=v0.5.0
-REPO=https://github.com/babylonchain/babylon
-GENESIS_FILE=https://snap.hexnodes.co/babylon/genesis.json
-ADDRBOOK=https://snap.hexnodes.co/babylon/addrbook.json
-PORT=02
+PROJECT_FOLDER=babylon
+VERSION=v0.7.2
+REPO=https://github.com/babylonchain/babylon.git
+GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/babylon/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/babylon/addrbook.json
+PORT=26
 DENOM=ubbn
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//') 
-PEERS=""
-SEEDS="03ce5e1b5be3c9a81517d415f65378943996c864@18.207.168.204:26656,a5fabac19c732bf7d814cf22e7ffc23113dc9606@34.238.169.221:26656"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
+PEERS=
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:20656"
 
 sleep 2
 
@@ -53,11 +53,14 @@ if [ ! $MONIKER ]; then
 	echo 'export MONIKER='$MONIKER >> $HOME/.bash_profile
 fi
 
-echo "10 installation_progress"
+echo "5 installation_progress"
 
 # Updates
 sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
 
+echo "30 installation_progress"
+
+# Go installation
 cd $HOME
 wget "https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
@@ -67,7 +70,7 @@ echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 go version
 
-echo "45 installation_progress"
+echo "60 installation_progress"
 
 sleep 1
 
@@ -77,8 +80,7 @@ git clone $REPO
 cd $PROJECT_FOLDER
 git checkout $VERSION
 make build
-sudo mv build/$EXECUTE /usr/bin/
-
+make install
 sleep 1
 
 $EXECUTE config chain-id $CHAIN_ID
@@ -88,16 +90,14 @@ $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 
 # Set peers and seeds
-sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
+# sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 
 # Download genesis and addrbook
 curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
 curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 
-# Set Port
-sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:${PORT}658\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://127.0.0.1:${PORT}657\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:${PORT}060\"%; s%^laddr = \"tcp://0.0.0.0:26656\"%laddr = \"tcp://0.0.0.0:${PORT}656\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":${PORT}660\"%" $HOME/$SYSTEM_FOLDER/config/config.toml
-sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${PORT}317\"%; s%^address = \":8080\"%address = \":${PORT}080\"%; s%^address = \"0.0.0.0:9090\"%address = \"0.0.0.0:${PORT}090\"%; s%^address = \"0.0.0.0:9091\"%address = \"0.0.0.0:${PORT}091\"%" $HOME/$SYSTEM_FOLDER/config/app.toml
+echo "85 installation_progress"
 
 # Set Config Pruning
 pruning="custom"
@@ -111,25 +111,8 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0001$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
-# Set key name
-sed -i 's|^key-name *=.*|key-name = "val-key"|g' $HOME/$SYSTEM_FOLDER/config/app.toml
-
-# Set checkpoint tag
-sed -i 's|^checkpoint-tag *=.*|checkpoint-tag = "bbn0"|g' $HOME/$SYSTEM_FOLDER/config/app.toml
-
-# Set timeout commit
-sed -i 's|^timeout_commit *=.*|timeout_commit = "10s"|g' $HOME/$SYSTEM_FOLDER/config/config.toml
-
-# Enable snapshots
-sed -i -e "s/^snapshot-interval *=.*/snapshot-interval = \"2000\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
-sed -i -e "s/^snapshot-keep-recent *=.*/snapshot-keep-recent = \"5\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
-
-$EXECUTE tendermint unsafe-reset-all --home $HOME/$SYSTEM_FOLDER --keep-addr-book
-curl -L https://snap.hexnodes.co/babylon/babylon.latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
-
-echo "80 installation_progress"
 
 # Creating your systemd service
 sudo tee <<EOF >/dev/null /etc/systemd/system/$EXECUTE.service
@@ -141,12 +124,23 @@ After=network-online.target
 User=$USER
 ExecStart=$(which $EXECUTE) start --home $HOME/$SYSTEM_FOLDER
 Restart=on-failure
-RestartSec=3
-LimitNOFILE=4096
+RestartSec=10
+LimitNOFILE=65535
 
 [Install]
 WantedBy=multi-user.target
 EOF
+
+sleep 3 
+
+#fast sync with snapshot
+wget -q -O - https://polkachu.com/testnets/${PROJECT}/snapshots > webpage.html
+SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/testnet-snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
+cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
+rm -rf $HOME/$SYSTEM_FOLDER/data/*
+mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
+curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
+
 
 sudo systemctl daemon-reload
 sudo systemctl enable $EXECUTE
@@ -158,5 +152,4 @@ echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
 echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:${PORT}657/status | jq .result.sync_info\e[0m"
 source $HOME/.bash_profile
-
 
