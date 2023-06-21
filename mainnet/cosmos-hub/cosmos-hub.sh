@@ -15,12 +15,13 @@ echo -e '\e[0m'
 # Variables
 # $PROJECT must be in quotation marks
 PROJECT="cosmos"
-URL=https://snapshots.polkachu.com/snapshots
+SNAPSHOT_URL=https://snapshots.polkachu.com/snapshots
+VERSION_URL=https://polkachu.com/networks/cosmos
 EXECUTE=gaiad
 CHAIN_ID=cosmoshub-4
 SYSTEM_FOLDER=.gaia
 PROJECT_FOLDER=gaia
-VERSION=v9.1.1
+VERSION=curl -s $VERSION_URL | grep -oP 'Current Node Version: \K[^<]*'
 REPO=https://github.com/cosmos/gaia.git
 GENESIS_FILE=https://snapshots.kjnodes.com/cosmoshub/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/cosmoshub/addrbook.json
