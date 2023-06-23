@@ -19,13 +19,13 @@ EXECUTE=kid
 CHAIN_ID=kichain-2
 SYSTEM_FOLDER=.kid
 PROJECT_FOLDER=ki-tools
-VERSION="5.0.2"
+VERSION=5.0.2
 REPO=https://github.com/KiFoundation/ki-tools.git
 GENESIS_FILE=https://snapshots.polkachu.com/genesis/kichain/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/addrbook/kichain/addrbook.json
 PORT=26
 DENOM=uxki
-GO_VERSION="1.19.9"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 PEERS="41b321292cbe50c5c30017cc71c404481be0e20b@3.38.12.5:26656,e7bab76ef15493aaee6f91a0652ba098838a0bfb@kichain-peer.panthea.eu:28656"
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13556"
 
