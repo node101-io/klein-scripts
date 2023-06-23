@@ -13,11 +13,12 @@ echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
 # Variables
+# $PROJECT must be in quotation marks
 PROJECT="axelar"
 URL=https://snapshots.polkachu.com/snapshots
 EXECUTE=axelard
 CHAIN_ID=axelar-dojo-1
-SYSTEM_FOLDER=.axelard
+SYSTEM_FOLDER=.axelar
 PROJECT_FOLDER=axelar-core
 VERSION=v0.33.1
 REPO=https://github.com/axelarnetwork/axelar-core.git
@@ -25,7 +26,7 @@ GENESIS_FILE=https://snapshots.polkachu.com/genesis/axelar/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/addrbook/axelar/addrbook.json
 PORT=26
 DENOM=uaxl
-GO_VERSION="v1.19.9"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
 PEERS="353f7d0962594bcbfb63c81594e35e39c4c89a1a@18.223.127.165:26656,ebc272824924ea1a27ea3183dd0b9ba713494f83@axelar-mainnet-peer.autostake.com:26826,3470414cd299d15911e9bb28557f6bffb8e514c6@peer-axelar-01.stakeflow.io:1606,381d7961c9e44bc25e02d60b94c26763a42db045@65.21.91.99:16756"
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:15156"
 
@@ -112,7 +113,7 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.007$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.05$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 
 # Creating your systemd service
@@ -134,7 +135,7 @@ EOF
 
 sleep 3 
 
-#Snapshot sync
+#fast sync with snapshot
 JSON_DATA=$(curl -s "$URL")
 RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
 SNAPSHOT=${URL}/${RESULT}
