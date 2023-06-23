@@ -29,6 +29,11 @@ ExecStart=$(which $EXECUTE) start --home $HOME/$SYSTEM_FOLDER
 Restart=on-failure
 RestartSec=10
 LimitNOFILE=65535
+Environment="DAEMON_NAME=junod"
+Environment="DAEMON_HOME=/home/<your-user>/.juno"
+Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=false"
+Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
+Environment="DAEMON_LOG_BUFFER_SIZE=512" 
 
 [Install]
 WantedBy=multi-user.target
