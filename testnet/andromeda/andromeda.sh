@@ -82,6 +82,39 @@ make build
 make install
 sleep 1
 
+# Prepare binaries for Cosmovisor
+mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
+mv build/${EXECUTE} $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+rm -rf build
+
+# Create application symlinks
+sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis $HOME/${SYSTEM_FOLDER}/cosmovisor/current -f
+sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin/${EXECUTE} /usr/local/bin/${EXECUTE} -f
+
+# Download and install Cosmovisor
+go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@latest
+
+# Create service
+sudo tee /etc/systemd/system/${EXECUTE}.service > /dev/null << EOF
+[Unit]
+Description=${EXECUTE}
+After=network-online.target
+
+[Service]
+User=$USER
+ExecStart=$(which cosmovisor) run start
+Restart=on-failure
+RestartSec=10
+LimitNOFILE=65535
+Environment="DAEMON_HOME=$HOME/${SYSTEM_FOLDER}"
+Environment="DAEMON_NAME=${EXECUTE}"
+Environment="UNSAFE_SKIP_BACKUP=true"
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 $EXECUTE config chain-id $CHAIN_ID
 $EXECUTE config keyring-backend test
 $EXECUTE config node tcp://localhost:26657
@@ -110,25 +143,8 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0001$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
-
-# Creating your systemd service
-sudo tee <<EOF >/dev/null /etc/systemd/system/$EXECUTE.service
-[Unit]
-Description=$EXECUTE
-After=network-online.target
-
-[Service]
-User=$USER
-ExecStart=$(which $EXECUTE) start --home $HOME/$SYSTEM_FOLDER
-Restart=on-failure
-RestartSec=10
-LimitNOFILE=65535
-
-[Install]
-WantedBy=multi-user.target
-EOF
 
 sleep 3 
 
