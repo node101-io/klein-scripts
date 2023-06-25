@@ -15,10 +15,12 @@ echo -e '\e[0m'
 # Variables
 EXECUTE=andromedad
 CHAIN_ID=galileo-3
-SYSTEM_FOLDER=.andromedad
-PROJECT_FOLDER=andromedad 
-VERSION=galileo-3-v1.1.0-beta1
 REPO=https://github.com/andromedaprotocol/andromedad.git
+# $ROUTE is what's between https://github.com/ and .git
+ROUTE=andromedaprotocol/andromedad
+PROJECT_FOLDER=andromedad
+SYSTEM_FOLDER=.andromedad
+VERSION=$(curl -s https://api.github.com/repos/${ROUTE}/tags | grep -m 1 '"name"' | cut -d '"' -f 4)
 GENESIS_FILE=https://snapshots.kjnodes.com/andromeda-testnet/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/andromeda-testnet/addrbook.json
 PORT=26
