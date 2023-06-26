@@ -18,7 +18,7 @@ cp $HOME/go/bin/$DAEMON_NAME $DAEMON_HOME/cosmovisor/genesis/bin
 cosmovisor init $HOME/go/bin/$DAEMON_NAME
 
 
-sudo tee <<EOF >/dev/null /etc/systemd/system/$EXECUTE.service
+sudo tee <<EOF >/dev/null /etc/systemd/system/$DAEMON_NAME.service
 [Unit]
 Description=$EXECUTE
 After=network-online.target
@@ -29,9 +29,9 @@ ExecStart=$(which $EXECUTE) start --home $HOME/$SYSTEM_FOLDER
 Restart=on-failure
 RestartSec=10
 LimitNOFILE=65535
-Environment="DAEMON_NAME=junod"
-Environment="DAEMON_HOME=/home/<your-user>/.juno"
-Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=false"
+Environment="DAEMON_NAME=$EXECUTE"
+Environment="DAEMON_HOME=${SYSTEM_FOLDER}"
+Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=true"
 Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
 Environment="DAEMON_LOG_BUFFER_SIZE=512" 
 
