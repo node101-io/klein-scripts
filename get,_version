@@ -1,0 +1,27 @@
+RPC_URL=$(curl -s -L https://raw.githubusercontent.com/ping-pub/explorer/master/chains/${net}/${PROJECT}.json)
+rpc_urls=$(echo "$RPC_URL" | jq -r '.rpc[]')
+
+declare -A versions
+
+for url in $rpc_urls; do
+    full_url="${url}/abci_info?"
+    response=$(curl -s "$full_url")
+    version_tag=$(echo "$response" | grep -o 'version":"[^"]*' | sed 's/version":"//')
+
+    if [[ -n $version_tag ]]; then
+        ((versions["$version_tag"]++))
+    fi
+done
+
+most_frequent_version=""
+max_count=0
+
+for version in "${!versions[@]}"; do
+    count=${versions["$version"]}
+    if (( count > max_count )); then
+        max_count=$count
+        most_frequent_version=$version
+    fi
+done
+
+echo "Most frequent version: $most_frequent_version"
