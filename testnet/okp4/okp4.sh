@@ -43,7 +43,6 @@ echo "export GO_VERSION=${GO_VERSION}" >> $HOME/.bash_profile
 echo "export PEERS=${PEERS}" >> $HOME/.bash_profile
 echo "export SEEDS=${SEEDS}" >> $HOME/.bash_profile
 
-
 source $HOME/.bash_profile
 
 sleep 1
@@ -83,18 +82,18 @@ sleep 1
 
 # Prepare binaries for Cosmovisor
 mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
-mv target/dist/${PROJECT_FOLDER} $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+mv target/dist/${EXECUTE} $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
 rm -rf build
 
 # Create application symlinks
 sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis $HOME/${SYSTEM_FOLDER}/cosmovisor/current -f
-sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin/${PROJECT_FOLDER} /usr/local/bin/${PROJECT_FOLDER} -f
+sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin/${EXECUTE} /usr/local/bin/${EXECUTE} -f
 
 # Download and install Cosmovisor
 go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
 
 # Create service
-sudo tee /etc/systemd/system/${PROJECT_FOLDER}.service > /dev/null << EOF
+sudo tee /etc/systemd/system/${EXECUTE}.service > /dev/null << EOF
 [Unit]
 Description=${EXECUTE}
 After=network-online.target
@@ -106,16 +105,13 @@ Restart=on-failure
 RestartSec=10
 LimitNOFILE=65535
 Environment="DAEMON_HOME=$HOME/${SYSTEM_FOLDER}"
-Environment="DAEMON_NAME=${PROJECT_FOLDER}"
+Environment="DAEMON_NAME=${EXECUTE}"
 Environment="UNSAFE_SKIP_BACKUP=true"
 Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin"
 
 [Install]
 WantedBy=multi-user.target
 EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable $EXECUTE
 
 $EXECUTE config chain-id $CHAIN_ID
 $EXECUTE config keyring-backend test
@@ -144,19 +140,18 @@ sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_rec
 sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
-
 # Set minimum gas price
 sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
-
 
 sleep 3 
 
 #fast sync with snapshot
-curl -L https://snapshots.kjnodes.com/okp4-testnet/snapshot_latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.okp4d
-[[ -f $HOME/.okp4d/data/upgrade-info.json ]] && cp $HOME/.okp4d/data/upgrade-info.json $HOME/.okp4d/cosmovisor/genesis/upgrade-info.json
+SNAPSHOT=https://snapshots.kjnodes.com/okp4-testnet/snapshot_latest.tar.lz4
+curl -L $SNAPSHOT | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
+[[ -f $HOME/$SYSTEM_FOLDER/data/upgrade-info.json ]] && cp $HOME/$SYSTEM_FOLDER/data/upgrade-info.json $HOME/$SYSTEM_FOLDER/cosmovisor/genesis/upgrade-info.json
 
-
-
+sudo systemctl daemon-reload
+sudo systemctl enable $EXECUTE
 sudo systemctl restart $EXECUTE
 
 echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
