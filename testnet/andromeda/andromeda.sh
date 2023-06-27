@@ -16,11 +16,9 @@ echo -e '\e[0m'
 EXECUTE=andromedad
 CHAIN_ID=galileo-3
 REPO=https://github.com/andromedaprotocol/andromedad.git
-# $ROUTE is what's between https://github.com/ and .git
-ROUTE=andromedaprotocol/andromedad
 PROJECT_FOLDER=andromedad
 SYSTEM_FOLDER=.andromedad
-VERSION=$(curl -s https://api.github.com/repos/${ROUTE}/tags | grep -m 1 '"name"' | cut -d '"' -f 4)
+VERSION=galileo-3-v1.1.0-beta1
 GENESIS_FILE=https://snapshots.kjnodes.com/andromeda-testnet/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/andromeda-testnet/addrbook.json
 PORT=26
@@ -44,7 +42,6 @@ echo "export DENOM=${DENOM}" >> $HOME/.bash_profile
 echo "export GO_VERSION=${GO_VERSION}" >> $HOME/.bash_profile
 echo "export PEERS=${PEERS}" >> $HOME/.bash_profile
 echo "export SEEDS=${SEEDS}" >> $HOME/.bash_profile
-
 
 source $HOME/.bash_profile
 
@@ -81,7 +78,6 @@ git clone $REPO
 cd $PROJECT_FOLDER
 git checkout $VERSION
 make build
-make install
 sleep 1
 
 # Prepare binaries for Cosmovisor
@@ -122,7 +118,6 @@ $EXECUTE config keyring-backend test
 $EXECUTE config node tcp://localhost:26657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
-
 # Set peers and seeds
 # sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
@@ -143,20 +138,15 @@ sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_rec
 sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
-
 # Set minimum gas price
 sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0001$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
-
 
 sleep 3 
 
 #fast sync with snapshot
 SNAPSHOT=https://snapshots.kjnodes.com/andromeda-testnet/snapshot_latest.tar.lz4
-cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
-rm -rf $HOME/$SYSTEM_FOLDER/data/*
-mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
-curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
-
+curl -L $SNAPSHOT | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
+[[ -f $HOME/$SYSTEM_FOLDER/data/upgrade-info.json ]] && cp $HOME/$SYSTEM_FOLDER/data/upgrade-info.json $HOME/$SYSTEM_FOLDER/cosmovisor/genesis/upgrade-info.json
 
 sudo systemctl daemon-reload
 sudo systemctl enable $EXECUTE
