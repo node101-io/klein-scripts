@@ -19,7 +19,32 @@ EXECUTE=osmosisd
 CHAIN_ID=osmosis-1
 SYSTEM_FOLDER=.osmosisd
 PROJECT_FOLDER=osmosis
-VERSION=v15.0.0
+RPC_URL=$(curl -s -L https://raw.githubusercontent.com/ping-pub/explorer/master/chains/mainnet/osmosis.json)
+rpc_urls=$(echo "$RPC_URL" | jq -r '.rpc[]')
+
+declare -A versions
+
+for url in $rpc_urls; do
+    full_url="${url}/abci_info?"
+    response=$(curl -s "$full_url")
+    version_tag=$(echo "$response" | grep -o 'version":"[^"]*' | sed 's/version":"//')
+
+    if [[ -n $version_tag ]]; then
+        ((versions["$version_tag"]++))
+    fi
+done
+
+most_frequent_version=""
+max_count=0
+
+for version in "${!versions[@]}"; do
+    count=${versions["$version"]}
+    if (( count > max_count )); then
+        max_count=$count
+        VERSION=$version
+    fi
+done
+
 REPO=https://github.com/osmosis-labs/osmosis.git
 GENESIS_FILE=https://snapshots.kjnodes.com/osmosis/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/osmosis/addrbook.json
