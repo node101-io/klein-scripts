@@ -41,7 +41,7 @@ for version in "${!versions[@]}"; do
     count=${versions["$version"]}
     if (( count > max_count )); then
         max_count=$count
-        VERSION="v""$version"
+        VERSION="v""${version}"
     fi
 done
 
