@@ -6,7 +6,7 @@ declare -A versions
 for url in $rpc_urls; do
     full_url="${url}/abci_info?"
     response=$(curl -s "$full_url")
-    version_tag=$(echo "$response" | grep -o '"_version":"[^"]*' | sed 's/"version":"//')
+    version_tag=$(echo "$response" | grep -o '"version":"[^"]*' | sed 's/"version":"//')
 
     if [[ -n $version_tag ]]; then
         ((versions["$version_tag"]++))
