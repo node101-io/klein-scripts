@@ -19,40 +19,15 @@ EXECUTE=osmosisd
 CHAIN_ID=osmosis-1
 SYSTEM_FOLDER=.osmosisd
 PROJECT_FOLDER=osmosis
-RPC_URL=$(curl -s -L https://raw.githubusercontent.com/ping-pub/explorer/master/chains/mainnet/osmosis.json)
-rpc_urls=$(echo "$RPC_URL" | jq -r '.rpc[]')
-
-declare -A versions
-
-for url in $rpc_urls; do
-    full_url="${url}/abci_info?"
-    response=$(curl -s "$full_url")
-    version_tag=$(echo "$response" | grep -o 'version":"[^"]*' | sed 's/version":"//')
-
-    if [[ -n $version_tag ]]; then
-        ((versions["$version_tag"]++))
-    fi
-done
-
-most_frequent_version=""
-max_count=0
-
-for version in "${!versions[@]}"; do
-    count=${versions["$version"]}
-    if (( count > max_count )); then
-        max_count=$count
-        VERSION=$version
-    fi
-done
-
+VERSION=v15.2.0
 REPO=https://github.com/osmosis-labs/osmosis.git
-GENESIS_FILE=https://snapshots.kjnodes.com/osmosis/genesis.json
-ADDRBOOK=https://snapshots.kjnodes.com/osmosis/addrbook.json
+GENESIS_FILE=https://snapshots.polkachu.com/genesis/osmosis/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/addrbook/osmosis/addrbook.json
 PORT=26
 DENOM=uosmo
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
+GO_VERSION="1.19.10"
 PEERS=
-SEEDS="400f3d9e30b69e78a7fb891f60d76fa3c73f0ecc@osmosis.rpc.kjnodes.com:12959"
+SEEDS="f515a8599b40f0e84dfad935ba414674ab11a668@osmosis.blockpane.com:26656,ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:12556,20e1000e88125698264454a884812746c2eb4807@seeds.lavenderfive.com:12556,ebc272824924ea1a27ea3183dd0b9ba713494f83@osmosis-mainnet-seed.autostake.com:26716,3cc024d1c760c9cd96e6413abaf3b36a8bdca58e@seeds.goldenratiostaking.net:1630,3e874613919a6f8b3fc26071fef563c88f031b3c@seed-osmosis.freshstaking.com:31656,bd7064a50f5843e2c84c71c4dc18ac07424bdcc1@seeds.whispernode.com:12556,400f3d9e30b69e78a7fb891f60d76fa3c73f0ecc@osmosis.rpc.kjnodes.com:11259,38ab18cb2ea1dfeb6232b429e1508f56b6ae5031@seed-osmosis-01.stakeflow.io:65535"
 
 sleep 2
 
