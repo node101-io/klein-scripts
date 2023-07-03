@@ -2,7 +2,7 @@
 
 #CHANGE AS YOU DESIRE.
 NET="mainnet" 
-PROJ="juno"
+PROJ="kava"
 
 RPC_URL=$(curl -s -L https://raw.githubusercontent.com/ping-pub/explorer/master/chains/$NET/$PROJECT.json)
 rpc_urls=$(echo "$RPC_URL" | jq -r '.rpc[]')
