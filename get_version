@@ -26,4 +26,4 @@ for version in "${!versions[@]}"; do
     fi
 done
 
-echo "Most frequent version: $most_frequent_version"
+echo $most_frequent_version
