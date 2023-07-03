@@ -2,9 +2,9 @@
 
 #CHANGE AS YOU DESIRE.
 NET="mainnet" 
-PROJ="meme"
+PROJ="juno"
 
-RPC_URL=$(curl -s -L https://raw.githubusercontent.com/ping-pub/explorer/master/chains/$NET/$PROJ.json)
+RPC_URL=$(curl -s -L https://raw.githubusercontent.com/ping-pub/explorer/master/chains/$NET/$PROJECT.json)
 rpc_urls=$(echo "$RPC_URL" | jq -r '.rpc[]')
 
 declare -A versions
