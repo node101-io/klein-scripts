@@ -1,7 +1,9 @@
 #!/bin/bash
 
-NET="mainnet"
+#CHANGE AS YOU DESIRE.
+NET="mainnet" 
 PROJ="meme"
+
 RPC_URL=$(curl -s -L https://raw.githubusercontent.com/ping-pub/explorer/master/chains/$NET/$PROJ.json)
 rpc_urls=$(echo "$RPC_URL" | jq -r '.rpc[]')
 
@@ -29,3 +31,4 @@ for version in "${!versions[@]}"; do
 done
 
 echo $most_frequent_version
+unset most_frequent_version
