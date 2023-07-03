@@ -1,3 +1,5 @@
+#!/bin/bash
+
 RPC_URL=$(curl -s -L https://raw.githubusercontent.com/ping-pub/explorer/master/chains/mainnet/osmosis.json)
 rpc_urls=$(echo "$RPC_URL" | jq -r '.rpc[]')
 
@@ -24,4 +26,4 @@ for version in "${!versions[@]}"; do
     fi
 done
 
-
+echo "Most frequent version: $most_frequent_version"
