@@ -18,7 +18,40 @@ URL=http://snapshots.autostake.com/${CHAIN_ID}
 EXECUTE=kava
 SYSTEM_FOLDER=.kava
 PROJECT_FOLDER=kava
-VERSION=v0.23.2
+
+#CHANGE AS YOU DESIRE.
+NET="mainnet" 
+
+RPC_URL=$(curl -s -L https://raw.githubusercontent.com/ping-pub/explorer/master/chains/$NET/$EXECUTE.json)
+rpc_urls=$(echo "$RPC_URL" | jq -r '.rpc[]')
+
+declare -A versions
+
+for url in $rpc_urls; do
+    full_url="${url}/abci_info?"
+    response=$(curl -s -L "$full_url")
+    version_tag=$(echo "$response" | jq -r '.result.response.version')
+
+    if [[ -n $version_tag ]]; then
+        ((versions["$version_tag"]++))
+    fi
+done
+
+most_frequent_version=""
+max_count=0
+
+for version in "${!versions[@]}"; do
+    count=${versions["$version"]}
+    if (( count > max_count )); then
+        max_count=$count
+        most_frequent_version=$version
+    fi
+done
+
+echo $most_frequent_version
+
+
+VERSION=v$most_frequent_version
 REPO=https://github.com/Kava-Labs/kava.git
 GENESIS_FILE=https://snapshots.polkachu.com/genesis/kava/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/addrbook/kava/addrbook.json
