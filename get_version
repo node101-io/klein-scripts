@@ -1,7 +1,8 @@
 #!/bin/bash
-$NET=testnet
-$PROJ=cosmos
-RPC_URL=$(curl -s -L https://raw.githubusercontent.com/ping-pub/explorer/master/chains/mainnet/osmosis.json)
+
+NET="mainnet"
+PROJ="meme"
+RPC_URL=$(curl -s -L https://raw.githubusercontent.com/ping-pub/explorer/master/chains/$NET/$PROJ.json)
 rpc_urls=$(echo "$RPC_URL" | jq -r '.rpc[]')
 
 declare -A versions
