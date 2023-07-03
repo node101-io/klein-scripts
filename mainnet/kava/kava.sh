@@ -12,61 +12,47 @@ echo -e ':!:  !:!  :!:  !:!  :!:  !:!  :!:         :!:  :!:    !:!    :!:'
 echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
+# Updates
+sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
+
+echo "5 installation_progress"
+
 # Variables
-CHAIN_ID=kava_2222-10
-URL=http://snapshots.autostake.com/${CHAIN_ID}
+# $PROJECT must be in quotation marks
+PROJECT="kava"
+SNAPSHOT_URL=https://snapshots.polkachu.com/snapshots
 EXECUTE=kava
+CHAIN_ID=kava_2222-10
 SYSTEM_FOLDER=.kava
 PROJECT_FOLDER=kava
-
-#CHANGE AS YOU DESIRE.
-NET="mainnet" 
-
-RPC_URL=$(curl -s -L https://raw.githubusercontent.com/ping-pub/explorer/master/chains/$NET/$EXECUTE.json)
-rpc_urls=$(echo "$RPC_URL" | jq -r '.rpc[]')
-
+NET="mainnet"
+RPC_URL=https://raw.githubusercontent.com/ping-pub/explorer/master/chains/$NET/$$PROJECT_FOLDER.json
 declare -A versions
-
-for url in $rpc_urls; do
-    full_url="${url}/abci_info?"
-    response=$(curl -s -L "$full_url")
-    version_tag=$(echo "$response" | jq -r '.result.response.version')
-
-    if [[ -n $version_tag ]]; then
-        ((versions["$version_tag"]++))
-    fi
+for url in $(curl -s -L $RPC_URL | jq -r '.rpc[]'); do
+    version_tag=$(curl -s -L "${url}/abci_info?" | jq -r '.result.response.version')
+    [[ -n $version_tag ]] && ((versions["$version_tag"]++))
 done
-
-most_frequent_version=""
-max_count=0
-
-for version in "${!versions[@]}"; do
-    count=${versions["$version"]}
-    if (( count > max_count )); then
-        max_count=$count
-        most_frequent_version=$version
-    fi
-done
-
-echo $most_frequent_version
-
-
-VERSION=v$most_frequent_version
+VERSION='v'$(printf "%s\n" "${!versions[@]}" | sort | uniq -c | sort -nr | head -n1 | awk '{print $2}')
 REPO=https://github.com/Kava-Labs/kava.git
 GENESIS_FILE=https://snapshots.polkachu.com/genesis/kava/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/addrbook/kava/addrbook.json
 PORT=26
 DENOM=ukava
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956"
-SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956,ebc272824924ea1a27ea3183dd0b9ba713494f83@kava-mainnet-seed.autostake.com:26656,7ab4b78fbe5ee9e3777b21464a3162bd4cc17f57@seed-kava-01.stakeflow.io:1206"
+PEERS=
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:13956"
 
 sleep 2
 
+echo "export PROJECT=${PROJECT}" >> $HOME/.bash_profile
+echo "export SNAPSHOT_URL=${SNAPSHOT_URL}" >> $HOME/.bash_profile
 echo "export EXECUTE=${EXECUTE}" >> $HOME/.bash_profile
 echo "export CHAIN_ID=${CHAIN_ID}" >> $HOME/.bash_profile
+echo "export SNAPSHOT_URL=${SNAPSHOT_URL}" >> $HOME/.bash_profile
 echo "export SYSTEM_FOLDER=${SYSTEM_FOLDER}" >> $HOME/.bash_profile
 echo "export PROJECT_FOLDER=${PROJECT_FOLDER}" >> $HOME/.bash_profile
+echo "export NET=${NET}" >> $HOME/.bash_profile
+echo "export RPC_URL=${RPC_URL}" >> $HOME/.bash_profile
 echo "export VERSION=${VERSION}" >> $HOME/.bash_profile
 echo "export REPO=${REPO}" >> $HOME/.bash_profile
 echo "export GENESIS_FILE=${GENESIS_FILE}" >> $HOME/.bash_profile
@@ -85,11 +71,6 @@ if [ ! $MONIKER ]; then
 	read -p "ENTER MONIKER NAME: " MONIKER
 	echo 'export MONIKER='$MONIKER >> $HOME/.bash_profile
 fi
-
-echo "5 installation_progress"
-
-# Updates
-sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
 
 echo "30 installation_progress"
 
@@ -116,14 +97,14 @@ make build
 make install
 sleep 1
 
+# Create system folder
 $EXECUTE config chain-id $CHAIN_ID
 $EXECUTE config keyring-backend test
 $EXECUTE config node tcp://localhost:26657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
-
 # Set peers and seeds
-sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
+# sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 
 # Download genesis and addrbook
@@ -167,13 +148,13 @@ EOF
 sleep 3 
 
 #fast sync with snapshot
-RESULT=$(curl -s $URL/ | egrep -o ">${CHAIN_ID}.*.tar.lz4" | tr -d ">" | tail -1)
-SNAPSHOT=${URL}/${RESULT}
+JSON_DATA=$(curl -s "$SNAPSHOT_URL")
+RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
+SNAPSHOT=${SNAPSHOT_URL}/${RESULT}
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
 curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
-
 
 sudo systemctl daemon-reload
 sudo systemctl enable $EXECUTE

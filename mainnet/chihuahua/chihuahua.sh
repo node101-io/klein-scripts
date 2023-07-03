@@ -12,30 +12,47 @@ echo -e ':!:  !:!  :!:  !:!  :!:  !:!  :!:         :!:  :!:    !:!    :!:'
 echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
+# Updates
+sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
+
+echo "5 installation_progress"
+
 # Variables
 # $PROJECT must be in quotation marks
 PROJECT="chihuahua"
-URL=https://snapshots.polkachu.com/snapshots
+SNAPSHOT_URL=https://snapshots.polkachu.com/snapshots
 EXECUTE=chihuahuad
 CHAIN_ID=chihuahua-1
 SYSTEM_FOLDER=.chihuahuad
 PROJECT_FOLDER=chihuahua
-VERSION=v4.2.3
+NET="mainnet"
+RPC_URL=https://raw.githubusercontent.com/ping-pub/explorer/master/chains/$NET/$PROJECT_FOLDER.json
+declare -A versions
+for url in $(curl -s -L $RPC_URL | jq -r '.rpc[]'); do
+    version_tag=$(curl -s -L "${url}/abci_info?" | jq -r '.result.response.version')
+    [[ -n $version_tag ]] && ((versions["$version_tag"]++))
+done
+VERSION=$(printf "%s\n" "${!versions[@]}" | sort | uniq -c | sort -nr | head -n1 | awk '{print $2}')
 REPO=https://github.com/ChihuahuaChain/chihuahua.git
 GENESIS_FILE=https://snapshots.polkachu.com/genesis/chihuahua/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/addrbook/chihuahua/addrbook.json
 PORT=26
 DENOM=uhuahua
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS="765ab0e15d4bcd7533b4bad8e596a1c42264a4fe@65.108.128.201:12956"
+PEERS=
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:12956"
 
 sleep 2
 
+echo "export PROJECT=${PROJECT}" >> $HOME/.bash_profile
+echo "export SNAPSHOT_URL=${SNAPSHOT_URL}" >> $HOME/.bash_profile
 echo "export EXECUTE=${EXECUTE}" >> $HOME/.bash_profile
 echo "export CHAIN_ID=${CHAIN_ID}" >> $HOME/.bash_profile
+echo "export SNAPSHOT_URL=${SNAPSHOT_URL}" >> $HOME/.bash_profile
 echo "export SYSTEM_FOLDER=${SYSTEM_FOLDER}" >> $HOME/.bash_profile
 echo "export PROJECT_FOLDER=${PROJECT_FOLDER}" >> $HOME/.bash_profile
+echo "export NET=${NET}" >> $HOME/.bash_profile
+echo "export RPC_URL=${RPC_URL}" >> $HOME/.bash_profile
 echo "export VERSION=${VERSION}" >> $HOME/.bash_profile
 echo "export REPO=${REPO}" >> $HOME/.bash_profile
 echo "export GENESIS_FILE=${GENESIS_FILE}" >> $HOME/.bash_profile
@@ -46,7 +63,6 @@ echo "export GO_VERSION=${GO_VERSION}" >> $HOME/.bash_profile
 echo "export PEERS=${PEERS}" >> $HOME/.bash_profile
 echo "export SEEDS=${SEEDS}" >> $HOME/.bash_profile
 
-
 source $HOME/.bash_profile
 
 sleep 1
@@ -54,11 +70,6 @@ if [ ! $MONIKER ]; then
 	read -p "ENTER MONIKER NAME: " MONIKER
 	echo 'export MONIKER='$MONIKER >> $HOME/.bash_profile
 fi
-
-echo "5 installation_progress"
-
-# Updates
-sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
 
 echo "30 installation_progress"
 
@@ -136,9 +147,9 @@ EOF
 sleep 3 
 
 #fast sync with snapshot
-JSON_DATA=$(curl -s "$URL")
+JSON_DATA=$(curl -s "$SNAPSHOT_URL")
 RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
-SNAPSHOT=${URL}/${RESULT}
+SNAPSHOT=${SNAPSHOT_URL}/${RESULT}
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
