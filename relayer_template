@@ -1,0 +1,51 @@
+#!/bin/bash
+sudo apt update && sudo apt upgrade -y
+
+git clone https://github.com/cosmos/relayer.git
+
+
+response=$(curl -s 'https://api.github.com/repos/cosmos/relayer/releases')
+
+declare -i i=0
+prerelease="true"
+
+while [ "$prerelease" = "true" ]; do
+  latest=$(echo "$response" | jq -r --argjson i "$i" '.[$i]')
+  prerelease=$(echo "$latest" | jq -r '.prerelease')
+  version=$(echo "$latest" | jq -r '.tag_name')
+  ((i++))
+done
+
+
+
+cd relayer && git checkout $version
+make install
+
+rly config init
+
+
+#CHAIN_1 and CHAIN_2 should be given from Rust command line code.
+
+rly chains add $CHAIN1 $CHAIN2
+
+
+# IMPORT OR CREATE NEW KEYS.
+rly keys add $CHAIN1 $KEY
+rly keys add $CHAIN2 $KEY
+
+# OR | OPTIONAL OFC
+#rly keys restore $ID1 [key-name] "same rules apply as above"
+#rly keys restore $ID2 [key-name] "mnemonic words here"
+
+
+#CHANGE WALLET NAMES. ASSUMED THAT BOTH ACCOUNTS HAVE SAME NAME, $KEY.
+sed -i "s/default/$KEY/" $HOME/.relayer/config/config.yaml
+
+ rly paths fetch
+
+rly paths list
+rly start 
+# IF PATH CAN BE CHOSEN, USE :
+# rly start [path]
+
+
