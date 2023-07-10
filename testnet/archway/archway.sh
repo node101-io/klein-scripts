@@ -150,23 +150,6 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 # Set minimum gas price
 sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"1000000000000$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
-# Creating your systemd service
-sudo tee <<EOF >/dev/null /etc/systemd/system/$EXECUTE.service
-[Unit]
-Description=$EXECUTE
-After=network-online.target
-
-[Service]
-User=$USER
-ExecStart=$(which $EXECUTE) start --home $HOME/$SYSTEM_FOLDER
-Restart=on-failure
-RestartSec=10
-LimitNOFILE=65535
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
 sleep 3 
 
 #fast sync with snapshot
