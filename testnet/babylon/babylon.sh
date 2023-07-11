@@ -23,13 +23,7 @@ EXECUTE=babylond
 CHAIN_ID=bbn-test-2
 SYSTEM_FOLDER=.babylond
 PROJECT_FOLDER=babylon
-RPC_URL=https://babylon-testnet.rpc.kjnodes.com
-declare -A versions
-for url in $(curl -s -L $RPC_URL | jq -r '.rpc[]'); do
-    version_tag=$(curl -s -L "${url}/abci_info?" | jq -r '.result.response.version')
-    [[ -n $version_tag ]] && ((versions["$version_tag"]++))
-done
-VERSION=$(printf "%s\n" "${!versions[@]}" | sort | uniq -c | sort -nr | head -n1 | awk '{print $2}')
+VERSION=v0.7.2
 REPO=https://github.com/babylonchain/babylon.git
 GENESIS_FILE=https://snapshots.kjnodes.com/babylon-testnet/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/babylon-testnet/addrbook.json
