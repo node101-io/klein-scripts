@@ -1,3 +1,6 @@
+# For more detailed descriptions, refer to the https://github.com/informalsystems/hermes/blob/master/config.toml
+# Which is an example config and has LOTS of comment lines.
+
 curl https://sh.rustup.rs -sSf | sh
 source "$HOME/.cargo/env"
 
@@ -17,7 +20,7 @@ hermes version
 
 ## INSTALLATION PART OVER.
 
-
+# THIS PART IS FOR CONFIGURING SERVICE FILE. 
 sudo tee /etc/systemd/system/hermesd.service > /dev/null <<EOF
 [Unit]
 Description=HERMES
@@ -33,16 +36,18 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 EOF
 
+
+#RELOAD, AS WE DO ALWAYS FOR EVERYTHING.
 sudo systemctl daemon-reload
 sudo systemctl enable hermesd
 
 
 # RE-ARRANGE SYSTEM
 
-# banksy-testnet-2
-# 07-tendermint-5, connection-1, channel-1, transfer, 
+# banksy-testnet-2  
+# 07-tendermint-5, connection-1, channel-1, transfer, ------  IN ORDER, THEY'RE RELATED TO: client-id, connection-id,channel-id. Declare this channel for transferring tokens.
 
-# osmo-test-5
+# osmo-test-5  ----- Same rules apply.
 # 07-tendermint-83, connection-103, channel-88, transfer
 
 tee $HOME/.hermes/config.toml > /dev/null <<EOF
@@ -63,11 +68,11 @@ clear_interval = 100
 clear_on_start = true
 tx_confirmation = false
 auto_register_counterparty_payee = false
-[rest]
+[rest] ## Probably for REST API
 enabled = false
 host = '127.0.0.1'
 port = 3000
-[telemetry]
+[telemetry] ## --- IT means measuring the distance, interestingly i can't see why it is used 
 enabled = false
 host = '127.0.0.1'
 port = 3001
@@ -75,24 +80,26 @@ port = 3001
 
 [[chains]]
 id = 'osmo-test-5'
-ccv_consumer_chain = false
+ccv_consumer_chain = false ## CCV is short for Cross-Chain Validation(2). 
 
 rpc_addr = 'https://rpc.osmotest5.osmosis.zone:443'
 grpc_addr = 'https://grpc.osmotest5.osmosis.zone:443'
-event_source = { mode = 'push', url = 'ws://rpc.osmotest5.osmosis.zone/websocket', batch_delay = '500ms' }
+event_source = { mode = 'push', url = 'ws://rpc.osmotest5.osmosis.zone/websocket', batch_delay = '500ms' } # LATENCY IS NECESSARY FOR HERMES. LATENCY = TIME_transaction - TIME_eventRecieved (3)
 rpc_timeout = '10s'
 trusted_node = false
 
+# BELOW PARAMETERS ARE THE ONES THAT YOU KNOW VERY WELL I BELIEVE.
+
 account_prefix = 'osmo'
 key_name = 'OSMO_TEST_REL_WALLET'
-store_prefix = 'ibc'
+store_prefix = 'ibc' # DECLARE THIS VARIABLES TO BE RELATED TO IBC.
 
 default_gas = 800000
 max_gas = 1600000
 gas_price = { price = 0.025, denom = 'uosmo' }
 gas_multiplier = 1.2
 
-max_msg_num = 30
+max_msg_num = 30 # MAXIMUM MESSAGE NUMBER, NECESSARY FOR KEEPING EVERYTHING UNDER CONTROL.
 max_tx_size = 180000   # hermes default 2097152
 
 clock_drift = '10s'
@@ -100,7 +107,7 @@ max_block_time = '30s'
 trust_threshold = { numerator = '1', denominator = '3' }
 address_type = { derivation = 'cosmos' }
 
-memo_prefix = 'moniker'
+memo_prefix = 'moniker' # MEMO IS PRINTED WHEN A RELAY OPERATION IS SUCCESFULLY DONE. IT HAS A DEFUALT VALUE, SO IT WORKS EVEN THOUGH YOU DON'T SET IT.
 [chains.packet_filter]
 policy = 'allow'
 list = [
@@ -137,7 +144,7 @@ max_block_time = '30s'
 trust_threshold = { numerator = '1', denominator = '3' }
 address_type = { derivation = 'cosmos' }
 
-memo_prefix = 'moniker'
+memo_prefix = 'moniker' # MEMO IS PRINTED WHEN A RELAY OPERATION IS SUCCESFULLY DONE. IT HAS A DEFUALT VALUE, SO IT WORKS EVEN THOUGH YOU DON'T SET IT.
 [chains.packet_filter]
 policy = 'allow'
 list = [
