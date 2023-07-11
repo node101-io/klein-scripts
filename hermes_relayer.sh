@@ -159,4 +159,89 @@ hermes config validate
 
 
 
+read mnemonic && echo "$mnemonic" > $HOME/.hermes/BANKSY_TEST_REL_WALLET.txt
+read mnemonic && echo "$mnemonic" > $HOME/.hermes/OSMO_TEST_REL_WALLET.txt
+
+hermes keys add --key-name BANKSY_TEST_REL_WALLET --chain banksy-testnet-2 --mnemonic-file $HOME/.hermes/BANKSY_TEST_REL_WALLET.txt
+hermes keys add --key-name OSMO_TEST_REL_WALLET   --chain osmo-test-5      --mnemonic-file $HOME/.hermes/OSMO_TEST_REL_WALLET.txt
+
+rm -rf $HOME/.hermes/BANKSY_TEST_REL_WALLET.txt
+rm -rf $HOME/.hermes/OSMO_TEST_REL_WALLET.txt
+
+# https://faucet.osmotest5.osmosis.zone OSMOSIS TESTNET5 FAUCET 
+# COMPOSABLE FAUCET ? MUST BE FOUND.
+
+sudo systemctl start hermesd && journalctl -u hermesd -f -o cat
+
+# UPDATING CLIENT. NEEDED TO BE DONE FOR BOTH CHAINS.
+# hermes update client --host-chain banksy-testnet-2 --client 07-tendermint-5
+# hermes update client --host-chain osmo-test-5 --client 07-tendermint-83
+
+
+# ANOTHER EXAMPLE
+# hermes update client --host-chain archway-1 --client 07-tendermint-2           
+
+
+
+
+
+
+
+# EXAMPLE FOR SENDING TOKENS: 
+
+
+# send from banksy to osmosis
+# banksyd tx ibc-transfer transfer transfer channel-1 \
+#  <osmo1_addr> \
+#  11111upica \
+#  --from=<banksy1_addr> \
+#  --fees 5000upica
+
+
+# send from osmosis to banksyd
+
+# build osmosis binary (go 1.19 is required)
+# cd $HOME
+# git clone https://github.com/osmosis-labs/osmosis
+# cd osmosis
+# git checkout v15.1.2 # IMPORTANT : AUTOMATICALLY GET VERSION. get_version.sh CAN BE USED.
+# make install
+
+# recover osmosis addr 
+# osmosisd keys add OSMO_TEST_REL_WALLET --recover
+
+# sent tx
+#osmosisd tx ibc-transfer transfer transfer channel-88 \
+ # <banksy1_addr> \
+ # 55555uosmo \
+ # --from=<osmo1_addr> \
+ # --fees 5000uosmo \
+ # --chain-id osmo-test-5 \
+ # --node https://rpc.osmotest5.osmosis.zone:443
+
+
+
+
+# ft-transfer example from banksy to osmosis
+#hermes tx ft-transfer \
+#  --number-msgs 10 \
+#  --key-name BANKSY_TEST_REL_WALLET \
+# --receiver <osmo1_addr> \
+#  --denom upica \
+#  --timeout-seconds 30 \
+#  --dst-chain osmo-test-5 \
+#  --src-chain banksy-testnet-2 \
+#  --src-port transfer \
+#  --src-channel channel-1 \
+#  --amount 7777
+
+
+
+
+
+
+
+
+
+
 
