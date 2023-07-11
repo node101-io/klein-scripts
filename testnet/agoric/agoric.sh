@@ -30,14 +30,7 @@ EXECUTE=agd
 CHAIN_ID=agoric-emerynet-8
 SYSTEM_FOLDER=.agoric
 PROJECT_FOLDER=agoric-sdk
-NET="testnet"
-RPC_URL=https://raw.githubusercontent.com/ping-pub/explorer/master/chains/$NET/$PROJECT.json
-declare -A versions
-for url in $(curl -s -L $RPC_URL | jq -r '.rpc[]'); do
-    version_tag=$(curl -s -L "${url}/abci_info?" | jq -r '.result.response.version')
-    [[ -n $version_tag ]] && ((versions["$version_tag"]++))
-done
-VERSION=$(printf "%s\n" "${!versions[@]}" | sort | uniq -c | sort -nr | head -n1 | awk '{print $2}')
+VERSION=mainnet1B-rc3
 REPO=https://github.com/Agoric/agoric-sdk.git
 GENESIS_FILE=https://snapshots.kjnodes.com/agoric-testnet/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/agoric-testnet/addrbook.json
