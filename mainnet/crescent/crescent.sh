@@ -12,22 +12,26 @@ echo -e ':!:  !:!  :!:  !:!  :!:  !:!  :!:         :!:  :!:    !:!    :!:'
 echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
+# Updates
+sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
+
+echo "5 installation_progress"
+
 # Variables
-# $PROJECT must be in quotation marks
-PROJECT="crescent"
-URL=https://snapshots.polkachu.com/snapshots
+PROJECT=crescent
 EXECUTE=crescentd
 CHAIN_ID=crescent-1
 SYSTEM_FOLDER=.crescent
 PROJECT_FOLDER=crescent
-VERSION=v4.2.0
+RPC_URL=https://crescent-rpc.polkachu.com
+VERSION='v'$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/crescent-network/crescent.git
 GENESIS_FILE=https://snapshots.polkachu.com/genesis/crescent/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/addrbook/crescent/addrbook.json
 PORT=26
 DENOM=ucre
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS=
+PEERS="3bcffbcb11e96edc84c04a5628639f5ed94b9db2@128.0.51.5:26656,ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:14556,ebc272824924ea1a27ea3183dd0b9ba713494f83@crescent-mainnet-peer.autostake.com:26816,3b60a29d89cd7ef6a8d0c7ba32013d7f2051e082@peer-crescent-01.stakeflow.io:1406"
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:14556"
 
 sleep 2
@@ -55,11 +59,6 @@ if [ ! $MONIKER ]; then
 	echo 'export MONIKER='$MONIKER >> $HOME/.bash_profile
 fi
 
-echo "5 installation_progress"
-
-# Updates
-sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
-
 echo "30 installation_progress"
 
 # Go installation
@@ -85,14 +84,44 @@ make build
 make install
 sleep 1
 
+# Download and install Cosmovisor
+go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
+
+# Create Cosmovisor Folders
+mkdir -p ~/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
+mkdir -p ~/${SYSTEM_FOLDER}/cosmovisor/upgrades
+
+# Load Node Binary into Cosmovisor Folder
+cp ~/go/bin/$EXECUTE ~/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
+
+# Create service
+sudo tee /etc/systemd/system/${EXECUTE}.service > /dev/null << EOF
+[Unit]
+Description=${EXECUTE}
+After=network-online.target
+
+[Service]
+User=$USER
+ExecStart=$(which cosmovisor) run start
+Restart=on-failure
+RestartSec=10
+LimitNOFILE=65535
+Environment="DAEMON_HOME=$HOME/${SYSTEM_FOLDER}"
+Environment="DAEMON_NAME=${EXECUTE}"
+Environment="UNSAFE_SKIP_BACKUP=true"
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 $EXECUTE config chain-id $CHAIN_ID
 $EXECUTE config keyring-backend test
-$EXECUTE config node tcp://localhost:26657
+$EXECUTE config node tcp://localhost:${PORT}657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
-
 # Set peers and seeds
-# sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
+sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 
 # Download genesis and addrbook
@@ -111,39 +140,21 @@ sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_rec
 sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
-
 # Set minimum gas price
 sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.02$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
-
-
-# Creating your systemd service
-sudo tee <<EOF >/dev/null /etc/systemd/system/$EXECUTE.service
-[Unit]
-Description=$EXECUTE
-After=network-online.target
-
-[Service]
-User=$USER
-ExecStart=$(which $EXECUTE) start --home $HOME/$SYSTEM_FOLDER
-Restart=on-failure
-RestartSec=10
-LimitNOFILE=65535
-
-[Install]
-WantedBy=multi-user.target
-EOF
 
 sleep 3 
 
 #fast sync with snapshot
-JSON_DATA=$(curl -s "$URL")
-RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
-SNAPSHOT=${URL}/${RESULT}
+wget -q -O - https://polkachu.com/tendermint_snapshots/${PROJECT} > webpage.html
+SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
 curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
+# Upgrade info
+[[ -f $HOME/$SYSTEM_FOLDER/data/upgrade-info.json ]] && cp $HOME/$SYSTEM_FOLDER/data/upgrade-info.json $HOME/$SYSTEM_FOLDER/cosmovisor/genesis/upgrade-info.json
 
 sudo systemctl daemon-reload
 sudo systemctl enable $EXECUTE
