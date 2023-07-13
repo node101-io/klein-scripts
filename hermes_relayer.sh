@@ -42,6 +42,8 @@ sudo systemctl daemon-reload
 sudo systemctl enable hermesd
 
 
+hermes config auto --output ~/.hermes/config.toml --chains <CHAIN_1> <CHAIN_2>
+
 # RE-ARRANGE SYSTEM
 
 # banksy-testnet-2  
