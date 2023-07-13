@@ -170,9 +170,6 @@ read mnemonic && echo "$mnemonic" > $HOME/.hermes/OSMO_TEST_REL_WALLET.txt
 hermes keys add --key-name BANKSY_TEST_REL_WALLET --chain banksy-testnet-2 --mnemonic-file $HOME/.hermes/BANKSY_TEST_REL_WALLET.txt
 hermes keys add --key-name OSMO_TEST_REL_WALLET   --chain osmo-test-5      --mnemonic-file $HOME/.hermes/OSMO_TEST_REL_WALLET.txt
 
-rm -rf $HOME/.hermes/BANKSY_TEST_REL_WALLET.txt
-rm -rf $HOME/.hermes/OSMO_TEST_REL_WALLET.txt
-
 # https://faucet.osmotest5.osmosis.zone OSMOSIS TESTNET5 FAUCET 
 # COMPOSABLE FAUCET ? MUST BE FOUND.
 
@@ -248,5 +245,15 @@ sudo systemctl start hermesd && journalctl -u hermesd -f -o cat
 
 
 
-
+hermes tx ft-transfer \
+  --number-msgs 10 \
+  --key-name BANKSY_TEST_REL_WALLET \
+  --receiver <osmo1_addr> \
+  --denom upica \
+  --timeout-seconds 30 \
+  --dst-chain osmo-test-5 \
+  --src-chain banksy-testnet-2 \
+  --src-port transfer \
+  --src-channel channel-1 \
+  --amount 7777
 
