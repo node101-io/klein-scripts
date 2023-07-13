@@ -18,14 +18,15 @@ CHAIN_ID=okp4-nemeton-1
 REPO=https://github.com/okp4/okp4d.git
 PROJECT_FOLDER=okp4d
 SYSTEM_FOLDER=.okp4d
-VERSION=v4.1.0
+RPC_URL=https://okp4-testnet.rpc.kjnodes.com
+VERSION='v'$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 GENESIS_FILE=https://snapshots.kjnodes.com/okp4-testnet/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/okp4-testnet/addrbook.json
 PORT=26
 DENOM=uknow
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//') 
-PEERS=
-SEEDS="3f472746f46493309650e5a033076689996c8881@okp4-testnet.rpc.kjnodes.com:13659"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
+PEERS="8d8fdad759361a57121903632adbd66ad072b1ab@okp4-testnet.nodejumper.io:29656,f3cccec7bdba9d5d4bd156087e3c6e2e5aa42948@65.108.134.215:29656,f045c5324e03d54f96285a33130d3886457e18be@46.4.81.204:49656,77324cc79d15d8bef4cc7462395062d73f51ad62@65.109.38.208:46656,d21f15a5ad8b9bc1b0e0828e8475137a749ae554@173.212.222.177:26656,9c462b1c0ba63115bd70c3bd4f2935fcb93721d0@65.21.170.3:42656,a855bd9e3b689f3d055811161dd851ce1f7aec74@65.108.141.228:26856,8cdeb85dada114c959c36bb59ce258c65ae3a09c@88.198.242.163:36656,b0b56d944cf1cc569a1e77e0923e075bad94d755@141.95.145.41:28656,1ee83a583c01d3ae9fb0bba77330fe2555ec9c60@65.109.55.186:30656,0448864ede56d3c96d7d3bb8ea9f546b70cc722e@51.159.149.68:26656"
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:17656"
 
 sleep 2
 
@@ -125,7 +126,7 @@ curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
 curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 
 # Set peers and seeds
-# sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
+sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 
 echo "85 installation_progress"
@@ -147,7 +148,12 @@ sleep 3
 
 #fast sync with snapshot
 SNAPSHOT=https://snapshots.kjnodes.com/okp4-testnet/snapshot_latest.tar.lz4
+cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
+rm -rf $HOME/$SYSTEM_FOLDER/data/*
+mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
 curl -L $SNAPSHOT | tar -Ilz4 -xf - -C $HOME/$SYSTEM_FOLDER
+
+# Upgrade info
 [[ -f $HOME/$SYSTEM_FOLDER/data/upgrade-info.json ]] && cp $HOME/$SYSTEM_FOLDER/data/upgrade-info.json $HOME/$SYSTEM_FOLDER/cosmovisor/genesis/upgrade-info.json
 
 sudo systemctl daemon-reload
