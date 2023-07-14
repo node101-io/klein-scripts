@@ -30,7 +30,7 @@ ADDRBOOK=https://snapshots.kjnodes.com/lava-testnet/addrbook.json
 PORT=26
 DENOM=ulava
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS=
+PEERS="1f704611e8aa4a53504fac1b80eb55c876dae8bd@65.108.13.154:30656,5c2a752c9b1952dbed075c56c600c3a79b58c395@185.16.39.172:27066,257856431ef33f9fbfe6c119fdf3820035891d0c@38.242.197.140:26656,5e068fccd370b2f2e5ab4240a304323af6385f1f@172.93.110.154:27656,433be6210ad6350bebebad68ec50d3e0d90cb305@217.13.223.167:60856,47385d0a7051109de5342e3b27890c4a4b9e0763@65.108.72.233:16656,1ec38451f3e45535ceba905d1442310c69aaf93e@217.76.61.37:26656,bb8c8cea499a1fa7e97922b5a9882c2360c6575a@176.103.222.21:26656,d5519e378247dfb61dfe90652d1fe3e2b3005a5b@65.109.68.190:14456,ef1b3374ca00c338de50d51fc41ca317488156eb@207.244.245.41:26656"
 SEEDS="3f472746f46493309650e5a033076689996c8881@lava-testnet.rpc.kjnodes.com:14459"
 
 sleep 2
@@ -121,7 +121,7 @@ $EXECUTE config node tcp://localhost:${PORT}657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 # Set peers and seeds
-# sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
+sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 
 # Download genesis and addrbook

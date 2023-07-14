@@ -31,7 +31,7 @@ ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/stargaze/addrbook.json
 PORT=26
 DENOM=ustars
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS=
+PEERS="083147e4148ac994410d3ffd079dbc1d0c453994@65.109.39.50:28656,9df8c30893c9de64eff8667ce487afcfbb2baa25@95.217.118.121:56656,89736cec483dd94ad946bb7325eeac9a1528f8e7@209.159.152.82:26656,2b388c1dc902132addab81350fb3cff484696cc5@5.9.81.187:33656,df878c4c87bbab8fcad3b38f77949146da95255a@65.109.82.111:30656,cf98e499ccde5e0f5c7b043889e8a2397248fb47@204.93.241.110:27654,4df27e54bfd2977478aad6f9dd100897a35f6f1d@146.190.250.27:26656,cdef10ac718b3c165cf2c9e761da90ef7872f1d0@159.148.146.132:26656,de00d2d65594b672469ecd65826a94ec1be80b9f@208.73.205.226:26656,0e069aa511164bce105b8e3616c9d9dd028235b9@65.108.226.183:13756,872317ee3682fb8d6d887e304c66caf3ad11d59d@198.244.203.194:26656,2ef080eea25992f167154e44d7253a23105e617d@162.55.245.144:12220"
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:13756"
 
 sleep 2
@@ -121,7 +121,7 @@ $EXECUTE config node tcp://localhost:${PORT}657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 # Set peers and seeds
-# sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
+sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 
 # Download genesis and addrbook
