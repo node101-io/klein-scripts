@@ -31,7 +31,7 @@ ADDRBOOK=https://snapshots.polkachu.com/addrbook/cosmos/addrbook.json
 PORT=26
 DENOM=uatom
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS=
+PEERS="d6318b3bd51a5e2b8ed08f2e520d50289ed32bf1@52.79.43.100:26656,b0e746acb6fbed7a0311fe21cfb2ee94581ca3bc@51.79.21.187:26656,1da54d20c7339713f1d6d28dd2117087dd33d0ca@cosmos-seed.icycro.org:26656,fe21dd474640247888fc7c4dce82da8da08a8bfd@peer-cosmos-hub-01.stakeflow.io:26656,01c0d24922dcdf6f8816ec814a5c3436c5d5fbc5@65.108.195.29:36656,28d36c3d45f0208528de3c38f2934ae241bd23e7@peer-cosmoshub.mms.team:26656"
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:14956"
 
 sleep 2
@@ -121,14 +121,14 @@ $EXECUTE config node tcp://localhost:${PORT}657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 # Set peers and seeds
-# sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
+sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 
 # Download genesis and addrbook
 curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
 curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 
-echo "85 installation_progress"
+echo "75 installation_progress"
 
 # Set Config Pruning
 pruning="custom"
