@@ -86,12 +86,13 @@ sleep 1
 # Download and install Cosmovisor
 go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
 
-# Create Cosmovisor Folders
-mkdir -p ~/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
-mkdir -p ~/${SYSTEM_FOLDER}/cosmovisor/upgrades
+# Create Genesis Folders
+mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
+cp ./build/${EXECUTE} $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
 
-# Load Node Binary into Cosmovisor Folder
-cp ~/go/bin/$EXECUTE ~/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
+# Create Upgrade Folders
+mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/upgrades
+cp ./build/${EXECUTE} $HOME/${SYSTEM_FOLDER}/cosmovisor/upgrades/bin
 
 # Create service
 sudo tee /etc/systemd/system/${EXECUTE}.service > /dev/null << EOF
@@ -107,6 +108,7 @@ RestartSec=10
 LimitNOFILE=65535
 Environment="DAEMON_HOME=$HOME/${SYSTEM_FOLDER}"
 Environment="DAEMON_NAME=${EXECUTE}"
+Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
 Environment="UNSAFE_SKIP_BACKUP=true"
 Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin"
 

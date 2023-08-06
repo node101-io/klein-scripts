@@ -12,7 +12,13 @@ echo -e ':!:  !:!  :!:  !:!  :!:  !:!  :!:         :!:  :!:    !:!    :!:'
 echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
+# Updates
+sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
+
+echo "5 installation_progress"
+
 # Variables
+PROJECT=okp4
 EXECUTE=okp4d
 CHAIN_ID=okp4-nemeton-1
 REPO=https://github.com/okp4/okp4d.git
@@ -51,11 +57,6 @@ if [ ! $MONIKER ]; then
 	read -p "ENTER MONIKER NAME: " MONIKER
 	echo 'export MONIKER='$MONIKER >> $HOME/.bash_profile
 fi
-
-echo "5 installation_progress"
-
-# Updates
-sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
 
 echo "30 installation_progress"
 
@@ -147,7 +148,7 @@ sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/$
 sleep 3 
 
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.kjnodes.com/okp4-testnet/snapshot_latest.tar.lz4
+SNAPSHOT=$(curl -s "https://dl2.quicksync.io/json/${PROJECT}.json" | jq -r '.[0].url')
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
