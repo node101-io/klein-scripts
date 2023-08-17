@@ -30,7 +30,7 @@ GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/dymension/genesis.js
 ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/dymension/addrbook.json
 PORT=26
 DENOM=udym
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
 PEERS="d5519e378247dfb61dfe90652d1fe3e2b3005a5b@65.109.68.190:14656,0110cad3139208047bd9232a4f128704a55e5305@65.109.116.204:21456,1dba47148fef299a00d7803af5d4c3d02c002fbd@209.97.136.200:32656,b989bcba871776cf50d39c2e58763677dc082181@45.14.194.130:26656,af97c76448e6a5d7671c6523f38fc48cc7273da7@217.76.59.46:26656,965694b051742c2da0ea66502dd9bfeea38de265@198.244.228.235:26656,55f233c7c4bea21a47d266921ca5fce657f3adf7@168.119.240.200:26656,79ee8f178ad21b5c387feb496b4d5ddebac4790e@74.208.16.201:26656,0c9d7d50cdf83200700cc463666475a2f150d4c4@164.92.190.234:21456,4e94581e03f46c2bda293fa47db05c2fa8883256@190.102.106.50:29656,38b72c1b3a4f33e5db14ee58698c54e9e16af48a@178.18.245.11:26656"
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:20556"
 

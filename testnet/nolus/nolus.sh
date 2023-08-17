@@ -29,7 +29,7 @@ GENESIS_FILE=https://snapshots.kjnodes.com/nolus-testnet/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/nolus-testnet/addrbook.json
 PORT=26
 DENOM=unls
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
+GO_VERSION="1.20"
 PEERS="f51e1663a3c3393eda437191fba66f220a7c3bfb@142.132.208.26:26356,acd39ab5b00e5611df296b2e6fb4f6a44a32513f@23.88.5.169:21656,f72ad216891e59cdc663958f55d2916e87c03c35@138.201.253.157:26666,7042490bf1526d8c61c43ffe4d700388b73b905f@65.108.192.123:35656,95d19246c54303d3264a34828dd179a5950ccc3f@65.109.53.22:55666,d5519e378247dfb61dfe90652d1fe3e2b3005a5b@65.109.68.190:14356"
 SEEDS="3f472746f46493309650e5a033076689996c8881@nolus-testnet.rpc.kjnodes.com:14359"
 
@@ -92,7 +92,7 @@ sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis $HOME/${SYSTEM_FOLDER}/cosm
 sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin/${EXECUTE} /usr/local/bin/${EXECUTE} -f
 
 # Download and install Cosmovisor
-go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@latest
+go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
 
 # Create service
 sudo tee /etc/systemd/system/${EXECUTE}.service > /dev/null << EOF

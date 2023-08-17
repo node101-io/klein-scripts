@@ -28,7 +28,7 @@ GENESIS_FILE=https://snapshots.kjnodes.com/andromeda-testnet/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/andromeda-testnet/addrbook.json
 PORT=26
 DENOM=uandr
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//') 
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//') 
 PEERS="22b78c53ebc22f9135c22dcecfef5a45df5b49ae@128.140.92.139:36656,3d25f45062b5f3f49a87d38300ca0f657a9c853f@84.252.159.238:02656,99cebda3a65a35b9a6a8bef774c8b92c1e548aa5@65.108.226.26:36656,d5519e378247dfb61dfe90652d1fe3e2b3005a5b@65.109.68.190:14756,cfddbf3740cabaae3e06410da9e03d86e64165d5@144.91.86.44:26656,e61f287d51edab6f6dbe00a8b804614443ee6f82@80.85.242.117:26656,41681200a0e60e9477181db813e1894684020378@194.233.92.77:26656,e4d0c8cf6a3dbee8af43582bb14e6e1077028341@198.244.179.125:30170,3969b8ddc6d0ed9f2deb0265e4b26e88c5cb894a@149.102.150.250:30656,69e89a5169fef99ed1b72dadd4f5c7b801616c88@142.132.209.236:21256"
 SEEDS="3f472746f46493309650e5a033076689996c8881@andromeda-testnet.rpc.kjnodes.com:14759"
 
