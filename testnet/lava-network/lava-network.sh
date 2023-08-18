@@ -20,17 +20,18 @@ echo "5 installation_progress"
 # Variables
 PROJECT=lava
 EXECUTE=lavad
-CHAIN_ID=lava-testnet-1
+CHAIN_ID=lava-testnet-2
 SYSTEM_FOLDER=.lava
 PROJECT_FOLDER=lava
-VERSION=v0.16.0
+RPC_URL=https://lava-testnet-rpc.polkachu.com
+VERSION='v'$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/lavanet/lava.git
 GENESIS_FILE=https://snapshots.kjnodes.com/lava-testnet/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/lava-testnet/addrbook.json
 PORT=26
 DENOM=ulava
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS="1f704611e8aa4a53504fac1b80eb55c876dae8bd@65.108.13.154:30656,5c2a752c9b1952dbed075c56c600c3a79b58c395@185.16.39.172:27066,257856431ef33f9fbfe6c119fdf3820035891d0c@38.242.197.140:26656,5e068fccd370b2f2e5ab4240a304323af6385f1f@172.93.110.154:27656,433be6210ad6350bebebad68ec50d3e0d90cb305@217.13.223.167:60856,47385d0a7051109de5342e3b27890c4a4b9e0763@65.108.72.233:16656,1ec38451f3e45535ceba905d1442310c69aaf93e@217.76.61.37:26656,bb8c8cea499a1fa7e97922b5a9882c2360c6575a@176.103.222.21:26656,d5519e378247dfb61dfe90652d1fe3e2b3005a5b@65.109.68.190:14456,ef1b3374ca00c338de50d51fc41ca317488156eb@207.244.245.41:26656"
+GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
+PEERS="5c2a752c9b1952dbed075c56c600c3a79b58c395@185.16.39.172:27066,a7cad1d8aa2b5fa2070c826307cdaf09bbf114f6@212.227.233.231:36656,d5519e378247dfb61dfe90652d1fe3e2b3005a5b@65.109.68.190:14456,810bdfb3e88f4872995f9a05b6298c1bf3d20fe0@65.108.105.48:19956,1f704611e8aa4a53504fac1b80eb55c876dae8bd@65.108.13.154:30656,5a3293c04ed8cf022e2c04d6d85db60a5c6abdc3@52.37.107.186:26656,07277038190e9eb8855a49b1a13d742d18d9bea5@65.108.41.172:26656,0e0e01f932a124c45f7f8600e38dba445b5f5dc4@65.108.226.183:19956,0d08a1b452e6d7ccdfbc9b54658b5f9ed24eff7b@135.181.138.160:29956,34a0258d5f63b9033aeb71226a6fb1e4c4138682@52.14.52.73:26656"
 SEEDS="3f472746f46493309650e5a033076689996c8881@lava-testnet.rpc.kjnodes.com:14459"
 
 sleep 2
@@ -84,7 +85,7 @@ sleep 1
 
 # Prepare binaries for Cosmovisor
 mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
-mv build/${EXECUTE} $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+mv build/$EXECUTE $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
 rm -rf build
 
 # Create application symlinks
@@ -139,6 +140,18 @@ sed -i -e "s/^pruning *=.*/pruning = \"$pruning\"/" $HOME/$SYSTEM_FOLDER/config/
 sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_recent\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+
+# Chain-specific configs
+sed -i \
+  -e 's/timeout_commit = ".*"/timeout_commit = "30s"/g' \
+  -e 's/timeout_propose = ".*"/timeout_propose = "1s"/g' \
+  -e 's/timeout_precommit = ".*"/timeout_precommit = "1s"/g' \
+  -e 's/timeout_precommit_delta = ".*"/timeout_precommit_delta = "500ms"/g' \
+  -e 's/timeout_prevote = ".*"/timeout_prevote = "1s"/g' \
+  -e 's/timeout_prevote_delta = ".*"/timeout_prevote_delta = "500ms"/g' \
+  -e 's/timeout_propose_delta = ".*"/timeout_propose_delta = "500ms"/g' \
+  -e 's/skip_timeout_commit = ".*"/skip_timeout_commit = false/g' \
+  $HOME/$SYSTEM_FOLDER/config/config.toml
 
 # Set minimum gas price
 sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
