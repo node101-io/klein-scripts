@@ -20,18 +20,18 @@ echo "5 installation_progress"
 # Variables
 PROJECT=dymension
 EXECUTE=dymd
-CHAIN_ID=35-C
+CHAIN_ID=froopyland_100-1
 SYSTEM_FOLDER=.dymension
 PROJECT_FOLDER=dymension
 RPC_URL=https://dymension-testnet-rpc.polkachu.com
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/dymensionxyz/dymension.git
-GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/dymension/genesis.json
-ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/dymension/addrbook.json
+GENESIS_FILE=https://snapshots.kjnodes.com/dymension-testnet/genesis.json
+ADDRBOOK=https://snapshots.kjnodes.com/dymension-testnet/addrbook.json
 PORT=26
 DENOM=udym
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
-PEERS="d5519e378247dfb61dfe90652d1fe3e2b3005a5b@65.109.68.190:14656,0110cad3139208047bd9232a4f128704a55e5305@65.109.116.204:21456,1dba47148fef299a00d7803af5d4c3d02c002fbd@209.97.136.200:32656,b989bcba871776cf50d39c2e58763677dc082181@45.14.194.130:26656,af97c76448e6a5d7671c6523f38fc48cc7273da7@217.76.59.46:26656,965694b051742c2da0ea66502dd9bfeea38de265@198.244.228.235:26656,55f233c7c4bea21a47d266921ca5fce657f3adf7@168.119.240.200:26656,79ee8f178ad21b5c387feb496b4d5ddebac4790e@74.208.16.201:26656,0c9d7d50cdf83200700cc463666475a2f150d4c4@164.92.190.234:21456,4e94581e03f46c2bda293fa47db05c2fa8883256@190.102.106.50:29656,38b72c1b3a4f33e5db14ee58698c54e9e16af48a@178.18.245.11:26656"
+PEERS="1fda06f90e45c2cc99d97b47ee0dca52f01fb192@91.107.215.74:26656,d5519e378247dfb61dfe90652d1fe3e2b3005a5b@65.109.68.190:14656,febc198f5086aed9bb578044c78cd9cfaf9023ac@65.108.229.93:29656,0aed913d6bdd0f10ba76e46002e1da2db9f0ac91@173.249.28.139:26656,c1158e056f90b0ffeee942afad6e4cb052c54b75@176.9.48.38:26656,9dfceb302e83eecd9b268e643ba8dcd89ff71e16@185.249.225.160:33656,53bce1af5605a40cb761409a8e78bc92533db4cf@135.181.46.127:26656,4fd873d15ae8450a46f8a6fea15d0bb699ce66c6@65.21.91.160:27655,804f4a3cb2005dac58c94d79002e10913477538b@37.27.0.249:26656,b1c6d6714ae90da3f09793ad340c79b50c6d1aa5@46.101.90.15:14656,ab32d488a060cbf8faa5fd104e63599c31340ace@138.68.159.100:26656"
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:20556"
 
 sleep 2
@@ -83,15 +83,17 @@ make build
 make install
 sleep 1
 
+# Prepare binaries for Cosmovisor
+mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
+mv build/${EXECUTE} $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+rm -rf build
+
+# Create application symlinks
+sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis $HOME/${SYSTEM_FOLDER}/cosmovisor/current -f
+sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin/${EXECUTE} /usr/local/bin/${EXECUTE} -f
+
 # Download and install Cosmovisor
 go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
-
-# Create Cosmovisor Folders
-mkdir -p ~/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
-mkdir -p ~/${SYSTEM_FOLDER}/cosmovisor/upgrades
-
-# Load Node Binary into Cosmovisor Folder
-cp ~/go/bin/$EXECUTE ~/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
 
 # Create service
 sudo tee /etc/systemd/system/${EXECUTE}.service > /dev/null << EOF
