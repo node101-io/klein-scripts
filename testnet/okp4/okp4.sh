@@ -58,7 +58,7 @@ if [ ! $MONIKER ]; then
 	echo 'export MONIKER='$MONIKER >> $HOME/.bash_profile
 fi
 
-echo "30 installation_progress"
+echo "20 installation_progress"
 
 # Go installation
 cd $HOME
@@ -70,7 +70,7 @@ echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 go version
 
-echo "60 installation_progress"
+echo "40 installation_progress"
 
 sleep 1
 
@@ -130,7 +130,7 @@ curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 
-echo "75 installation_progress"
+echo "50 installation_progress"
 
 # Set Config Pruning
 pruning="custom"
