@@ -20,7 +20,7 @@ echo "5 installation_progress"
 # Variables
 PROJECT=celestia
 EXECUTE=celestia-appd
-CHAIN_ID=mocha-3	
+CHAIN_ID=mocha-4
 SYSTEM_FOLDER=.celestia-app
 PROJECT_FOLDER=celestia-app
 RPC_URL=https://celestia-testnet-rpc.polkachu.com
