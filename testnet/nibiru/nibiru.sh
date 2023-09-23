@@ -18,8 +18,11 @@ CHAIN_ID=nibiru-itn-1
 REPO=https://github.com/NibiruChain/nibiru.git
 PROJECT_FOLDER=nibiru
 SYSTEM_FOLDER=.nibid
-RPC_URL=https://nibiru-testnet.rpc.kjnodes.com
+RPC_URL=https://rpc.itn-2.nibiru.fi
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
+if [[ $VERSION != v* ]]; then
+    VERSION="v$VERSION"
+fi
 GENESIS_FILE=https://snapshots.kjnodes.com/nibiru-testnet/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/nibiru-testnet/addrbook.json
 PORT=26
