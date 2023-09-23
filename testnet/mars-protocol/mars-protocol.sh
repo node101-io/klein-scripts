@@ -24,7 +24,10 @@ CHAIN_ID=ares-1
 SYSTEM_FOLDER=.mars
 PROJECT_FOLDER=hub
 RPC_URL=https://mars-testnet-rpc.polkachu.com
-VERSION='v'$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
+VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
+if [[ $VERSION != v* ]]; then
+    VERSION="v$VERSION"
+fi
 REPO=https://github.com/mars-protocol/hub.git
 GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/mars/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/mars/addrbook.json
