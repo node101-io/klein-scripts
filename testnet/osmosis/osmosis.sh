@@ -25,6 +25,9 @@ SYSTEM_FOLDER=.osmosisd
 PROJECT_FOLDER=osmosis
 RPC_URL=https://osmosis-testnet-rpc.polkachu.com
 VERSION='v'$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
+if [[ $VERSION != v* ]]; then
+    VERSION="v$VERSION"
+fi
 REPO=https://github.com/osmosis-labs/osmosis.git
 GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/osmosis/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/osmosis/addrbook.json
@@ -59,7 +62,7 @@ if [ ! $MONIKER ]; then
 	echo 'export MONIKER='$MONIKER >> $HOME/.bash_profile
 fi
 
-echo "30 installation_progress"
+echo "20 installation_progress"
 
 # Go installation
 cd $HOME
@@ -71,7 +74,7 @@ echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 go version
 
-echo "60 installation_progress"
+echo "30 installation_progress"
 
 sleep 1
 
@@ -129,7 +132,7 @@ sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config
 curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
 curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 
-echo "75 installation_progress"
+echo "50 installation_progress"
 
 # Set Config Pruning
 pruning="custom"
@@ -147,8 +150,7 @@ sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/$
 sleep 3 
 
 #fast sync with snapshot
-wget -q -O - https://polkachu.com/testnets/${PROJECT}/snapshots > webpage.html
-SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/testnet-snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
+SNAPSHOT=$(curl -sL https://snapshots.testnet.osmosis.zone/latest)
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
