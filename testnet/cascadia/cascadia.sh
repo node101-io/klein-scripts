@@ -23,15 +23,15 @@ EXECUTE=cascadiad
 CHAIN_ID=cascadia_6102-1
 SYSTEM_FOLDER=.cascadiad
 PROJECT_FOLDER=cascadia
-RPC_URL=https://cascadia-t.rpc.bccnodes.com
+RPC_URL=https://rpc.nodejumper.io/cascadiatestnet
 VERSION='v'$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/CascadiaFoundation/cascadia.git
-GENESIS_FILE=https://services.bccnodes.com/testnets/cascadia/genesis.json
-ADDRBOOK=https://services.bccnodes.com/testnets/cascadia/addrbook.json
+GENESIS_FILE=https://ss-t.cascadia.nodestake.top/genesis.json
+ADDRBOOK=https://ss-t.cascadia.nodestake.top/addrbook.json
 PORT=26
 DENOM=aCC
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//') 
-PEERS=$(curl -s https://services.bccnodes.com/testnets/cascadia/peers.txt)
+PEERS=
 SEEDS="42c4a78f39935df1c20b51c4b0d0a21db8f01c88@cascadia-testnet-seed.itrocket.net:40656"
 
 sleep 2
@@ -147,8 +147,8 @@ sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/$
 sleep 3 
 
 #fast sync with snapshot
-SHOT=$(curl -s https://snapshots1-testnet.nodejumper.io/cascadia-testnet/info.json | jq -r .fileName)
-SNAPSHOT=https://snapshots1-testnet.nodejumper.io/cascadia-testnet/${SHOT}
+SHOT=$(curl -s https://ss-t.cascadia.nodestake.top/ | egrep -o ">20.*\.tar.lz4" | tr -d ">")
+SNAPSHOT=https://ss-t.cascadia.nodestake.top/${SHOT}
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json

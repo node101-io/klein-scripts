@@ -20,11 +20,14 @@ echo "5 installation_progress"
 # Variables
 PROJECT=cosmos
 EXECUTE=gaiad
-CHAIN_ID=provider
+RPC_URL=https://cosmos-testnet-rpc.polkachu.com
+CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
 SYSTEM_FOLDER=.gaia
 PROJECT_FOLDER=gaia
-RPC_URL=https://cosmos-testnet-rpc.polkachu.com
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
+if [[ $VERSION != v* ]]; then
+  VERSION="v$VERSION"
+fi
 REPO=https://github.com/cosmos/gaia.git
 GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/cosmos/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/cosmos/addrbook.json

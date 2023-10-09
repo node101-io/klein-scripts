@@ -18,24 +18,24 @@ sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang p
 echo "5 installation_progress"
 
 # Variables
-PROJECT=mars
-EXECUTE=marsd
-RPC_URL=https://mars-testnet-rpc.polkachu.com
-CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
-SYSTEM_FOLDER=.mars
-PROJECT_FOLDER=hub
+PROJECT=axelar
+EXECUTE=axelard
+CHAIN_ID=axelar-testnet-lisbon-3
+SYSTEM_FOLDER=/root/.axelar
+PROJECT_FOLDER=axelar-core
+RPC_URL=https://axelar-testnet-rpc.polkachu.com
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 if [[ $VERSION != v* ]]; then
-  VERSION="v$VERSION"
+    VERSION="v$VERSION"
 fi
-REPO=https://github.com/mars-protocol/hub.git
-GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/mars/genesis.json
-ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/mars/addrbook.json
+REPO=https://github.com/axelarnetwork/axelar-core.git
+GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/axelar/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/axelar/addrbook.json
 PORT=26
-DENOM=umars
+DENOM=uaxl
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
-PEERS="869a21095b5cc387c6073785c76fba356a861710@95.217.232.137:26656,8211450a8c7f31b5b3a1f3b792354de5fed1d792@85.10.198.169:33656,c4ea4f6f288d5704a8675c833a8f2dc640498620@135.181.59.182:28656,7deb495fc4d74364a880d4ef71ade35c285a6f26@159.65.112.20:26656,1b4c9d74ca45ff542e8213446e9b384b311d0bea@65.108.200.248:55556,56ff8e129a481f186e4ac066f3a38bac179bd8e2@65.109.92.79:22656,b80308496e0de8b6da9ebb2fd52780593cf1172d@65.108.72.253:22656,12808b8c3b45c294475cacdf7a46734275ca5dc5@85.10.197.4:33656,172183fe644285dbdf3469c6b802a1a7b9bd976b@142.132.205.70:26756,b6cdcb8c3d816cf2f9c9bc7d6980869e5b3429f1@162.55.245.144:2020,cade95c70198f0d81e4174940bf9412336b0730b@135.181.222.185:33656,9847d03c789d9c87e84611ebc3d6df0e6123c0cc@91.194.30.204:17656,e12bc490096d1b5f4026980f05a118c82e81df2a@65.109.39.252:30656,931d82351a5b96a1e9838008636b98c6e6b530bc@65.108.225.158:18556,a841d3e526089172867a73b709fd14e1d9fb87bd@65.108.231.124:22656"
-SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:18556"
+PEERS="5c2a752c9b1952dbed075c56c600c3a79b58c395@axelar-testnet-peer.autostake.com"
+SEEDS="5c2a752c9b1952dbed075c56c600c3a79b58c395@axelar-testnet-seed.autostake.com"
 
 sleep 2
 
@@ -64,12 +64,13 @@ fi
 echo "30 installation_progress"
 
 # Go installation
-GO_VERSION="1.18"
+cd $HOME
 wget "https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
 sudo tar -C /usr/local -xzf "go$GO_VERSION.linux-amd64.tar.gz"
 rm "go$GO_VERSION.linux-amd64.tar.gz"
-echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin"
+echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
+source $HOME/.bash_profile
 go version
 
 echo "60 installation_progress"
@@ -119,7 +120,7 @@ EOF
 $EXECUTE config chain-id $CHAIN_ID
 $EXECUTE config keyring-backend test
 $EXECUTE config node tcp://localhost:${PORT}657
-$EXECUTE init $MONIKER --chain-id $CHAIN_ID
+$EXECUTE init $MONIKER --chain-id $CHAIN_ID --home $HOME/$SYSTEM_FOLDER
 
 # Set peers and seeds
 sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml

@@ -18,24 +18,25 @@ sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang p
 echo "5 installation_progress"
 
 # Variables
-PROJECT=mars
-EXECUTE=marsd
-RPC_URL=https://mars-testnet-rpc.polkachu.com
+PROJECT=kujira
+EXECUTE=kujirad
+RPC_URL=https://kujira-testnet-rpc.polkachu.com
 CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
-SYSTEM_FOLDER=.mars
-PROJECT_FOLDER=hub
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
+REPO=https://github.com/Team-Kujira/core.git
+SYSTEM_FOLDER=.kujira
+PROJECT_FOLDER=core
+GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/kujira/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/kujira/addrbook.json
+PORT=26
+DENOM=ukuji
+GO_VERSION="1.20.5"
+PEERS="0c899c47a1f0726a7edcc4a40d1681ffaecbcf3a@65.108.225.158:11856,b53203020aed2505849f444239150faa66d9c883@65.108.192.123:24656,99f2227bda41d63bbb5f2d8d16071a3494602724@190.2.142.46:26656,66c551ebcb68fe343c7e2720593dc47426813a68@93.189.30.104:26656,54fae60a8e69233c7c165750a9b603d1ebd58994@95.217.148.219:26656,a7bab0f25d638f913f558fe9be16718b07cfccda@65.108.72.175:29655,2b2ac44b8df216fbb4ed800c7d6b604c6ce21132@34.248.145.212:26656,baf7aea386e5d84dfb2772d426a395302c8b091d@148.251.23.39:26656,02bc784e97b2550661cf3183611b33ca32c40966@5.79.79.80:26656,34df42305ad1db935ca6e177f36d3ed89b69bdcb@5.9.145.125:15610,1b99038e9116d8f0aca5b8ec3355ef5b2e34aa98@142.132.203.60:26656,1da94e6a3a718e243de9f6f7afce9563675a84fc@107.181.234.234:20656"
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:11856"
+
 if [[ $VERSION != v* ]]; then
   VERSION="v$VERSION"
 fi
-REPO=https://github.com/mars-protocol/hub.git
-GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/mars/genesis.json
-ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/mars/addrbook.json
-PORT=26
-DENOM=umars
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
-PEERS="869a21095b5cc387c6073785c76fba356a861710@95.217.232.137:26656,8211450a8c7f31b5b3a1f3b792354de5fed1d792@85.10.198.169:33656,c4ea4f6f288d5704a8675c833a8f2dc640498620@135.181.59.182:28656,7deb495fc4d74364a880d4ef71ade35c285a6f26@159.65.112.20:26656,1b4c9d74ca45ff542e8213446e9b384b311d0bea@65.108.200.248:55556,56ff8e129a481f186e4ac066f3a38bac179bd8e2@65.109.92.79:22656,b80308496e0de8b6da9ebb2fd52780593cf1172d@65.108.72.253:22656,12808b8c3b45c294475cacdf7a46734275ca5dc5@85.10.197.4:33656,172183fe644285dbdf3469c6b802a1a7b9bd976b@142.132.205.70:26756,b6cdcb8c3d816cf2f9c9bc7d6980869e5b3429f1@162.55.245.144:2020,cade95c70198f0d81e4174940bf9412336b0730b@135.181.222.185:33656,9847d03c789d9c87e84611ebc3d6df0e6123c0cc@91.194.30.204:17656,e12bc490096d1b5f4026980f05a118c82e81df2a@65.109.39.252:30656,931d82351a5b96a1e9838008636b98c6e6b530bc@65.108.225.158:18556,a841d3e526089172867a73b709fd14e1d9fb87bd@65.108.231.124:22656"
-SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:18556"
 
 sleep 2
 
@@ -53,6 +54,7 @@ echo "export GO_VERSION=${GO_VERSION}" >> $HOME/.bash_profile
 echo "export PEERS=${PEERS}" >> $HOME/.bash_profile
 echo "export SEEDS=${SEEDS}" >> $HOME/.bash_profile
 
+
 source $HOME/.bash_profile
 
 sleep 1
@@ -61,18 +63,19 @@ if [ ! $MONIKER ]; then
 	echo 'export MONIKER='$MONIKER >> $HOME/.bash_profile
 fi
 
-echo "30 installation_progress"
+echo "20 installation_progress"
 
 # Go installation
-GO_VERSION="1.18"
+cd $HOME
 wget "https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
 sudo tar -C /usr/local -xzf "go$GO_VERSION.linux-amd64.tar.gz"
 rm "go$GO_VERSION.linux-amd64.tar.gz"
-echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin"
+echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
+source $HOME/.bash_profile
 go version
 
-echo "60 installation_progress"
+echo "30 installation_progress"
 
 sleep 1
 
@@ -121,6 +124,7 @@ $EXECUTE config keyring-backend test
 $EXECUTE config node tcp://localhost:${PORT}657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
+
 # Set peers and seeds
 sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
@@ -129,7 +133,7 @@ sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config
 curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
 curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 
-echo "75 installation_progress"
+echo "50 installation_progress"
 
 # Set Config Pruning
 pruning="custom"
@@ -142,7 +146,7 @@ sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every
 sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0025$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 sleep 3 
 
