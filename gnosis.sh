@@ -16,7 +16,7 @@ echo -e '\e[0m'
 sudo apt-get update && sudo apt-get install libsnappy-dev libc6-dev libc6 unzip -y
 
 # Variables
-PROJECT_FOLDER=ethereum 
+PROJECT_FOLDER=gnosis
 NETHERMIND_DOWNLOAD_URL=https://nethdev.blob.core.windows.net/builds/nethermind-1.21.0-bb9b72c0-linux-x64.zip
 EXECUTION_FOLDER=execution
 LIGHTHOUSE_DOWNLOAD_URL=https://github.com/sigp/lighthouse/releases/download/v4.5.0/lighthouse-v4.5.0-x86_64-unknown-linux-gnu-portable.tar.gz
@@ -57,13 +57,13 @@ sleep 1
 # Create Nethermind service
 sudo tee /etc/systemd/system/nethermind.service > /dev/null << EOF
 [Unit]
-Description=Execution Nethermind Ethereum Node
+Description=Execution Nethermind Gnosis Node
 After=network.target
 
 [Service]
 User=$USER
 Type=simple
-ExecStart=$HOME/${PROJECT_FOLDER}/${EXECUTION_FOLDER}/Nethermind.Runner --config mainnet --JsonRpc.Enabled true --HealthChecks.Enabled true --HealthChecks.UIEnabled true --JsonRpc.EnginePort=8551 --JsonRpc.JwtSecretFile=../jwtsecret/jwt.hex
+ExecStart=$HOME/${PROJECT_FOLDER}/${EXECUTION_FOLDER}/Nethermind.Runner --config gnosis --JsonRpc.Enabled true --HealthChecks.Enabled true --HealthChecks.UIEnabled true --JsonRpc.EnginePort=8551 --JsonRpc.JwtSecretFile=../jwtsecret/jwt.hex
 Restart=on-failure
 LimitNOFILE=65535
 
@@ -92,13 +92,13 @@ sleep 1
 # Create Lighthouse service
 sudo tee /etc/systemd/system/lighthouse.service > /dev/null << EOF
 [Unit]
-Description=Consensus Lighthouse Ethereum Node
+Description=Consensus Lighthouse Gnosis Node
 After=network.target
 
 [Service]
 User=$USER
 Type=simple
-ExecStart=$HOME/${PROJECT_FOLDER}/${CONSENSUS_FOLDER}/lighthouse beacon_node --network mainnet --datadir=data --eth1 --http --execution-endpoint http://localhost:8551 --jwt-secrets ../jwtsecret/jwt.hex --checkpoint-sync-url "https://beaconstate.ethstaker.cc"
+ExecStart=$HOME/${PROJECT_FOLDER}/${CONSENSUS_FOLDER}/lighthouse --network gnosis beacon_node --datadir=data --http --execution-endpoint http://localhost:8551 --execution-jwt ../jwtsecret/jwt.hex --checkpoint-sync-url "https://checkpoint.gnosischain.com"
 Restart=on-failure
 LimitNOFILE=65535
 
