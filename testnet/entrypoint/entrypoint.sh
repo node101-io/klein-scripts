@@ -22,14 +22,14 @@ GO_VERSION="1.20"
 EXECUTE=entrypointd
 RPC_URL=https://testnet-rpc.entrypoint.zone
 CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
-VERSION="1.0.0"
-BINARY=https://github.com/entrypoint-zone/testnets/releases/download/v${VERSION}/entrypointd-${VERSION}-linux-amd64
-GENESIS_FILE=https://raw.githubusercontent.com/entrypoint-zone/testnets/main/entrypoint-pubtest-1/genesis.json
+VERSION="1.1.1"
+BINARY=https://github.com/entrypoint-zone/testnets/releases/download/v${VERSION}/entrypointd-v${VERSION}-linux-amd64
+GENESIS_FILE=https://raw.githubusercontent.com/entrypoint-zone/testnets/main/entrypoint-pubtest-2/genesis.json
 GOPATH=/usr/local/go
 SYSTEM_FOLDER=.entrypoint
 PORT=26
 DENOM=uentry
-PEERS="127c2509947c4bc61c977e92a1457eb88f3964c3@185.107.68.148:26656,19a93a626fd1c20b276176d80b85e6c3db5eca0d@80.64.208.169:26656"
+PEERS="81bf2ade773a30eccdfee58a041974461f1838d8@185.107.68.148:26656,d57c7572d58cb3043770f2c0ba412b35035233ad@80.64.208.169:26656"
 
 sleep 2
 
@@ -74,9 +74,9 @@ sleep 1
 cd $HOME
 curl -LO $BINARY
 
-cp entrypointd-1.0.0-linux-amd64 $GOPATH/bin/entrypointd
+cp entrypointd-v1.1.1-linux-amd64 $GOPATH/bin/entrypointd
 
-rm -rf entrypointd-1.0.0-linux-amd64
+rm -rf entrypointd-v1.1.1-linux-amd64
 
 chmod +x $GOPATH/bin/entrypointd
 
@@ -138,7 +138,7 @@ sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every
 sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.01$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 sleep 3 
 
