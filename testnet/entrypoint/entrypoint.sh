@@ -22,8 +22,8 @@ GO_VERSION="1.20"
 EXECUTE=entrypointd
 RPC_URL=https://testnet-rpc.entrypoint.zone
 CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
-VERSION="1.1.1"
-BINARY=https://github.com/entrypoint-zone/testnets/releases/download/v${VERSION}/entrypointd-v${VERSION}-linux-amd64
+VERSION="1.2.0"
+BINARY=https://github.com/entrypoint-zone/testnets/releases/download/v${VERSION}/entrypointd-${VERSION}-linux-amd64
 GENESIS_FILE=https://raw.githubusercontent.com/entrypoint-zone/testnets/main/entrypoint-pubtest-2/genesis.json
 GOPATH=/usr/local/go
 SYSTEM_FOLDER=.entrypoint
@@ -74,9 +74,9 @@ sleep 1
 cd $HOME
 curl -LO $BINARY
 
-cp entrypointd-v1.1.1-linux-amd64 $GOPATH/bin/entrypointd
+cp entrypointd-1.2.0-linux-amd64 $GOPATH/bin/entrypointd
 
-rm -rf entrypointd-v1.1.1-linux-amd64
+rm -rf entrypointd-1.2.0-linux-amd64
 
 chmod +x $GOPATH/bin/entrypointd
 
