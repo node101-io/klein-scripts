@@ -146,8 +146,6 @@ LATEST_HEIGHT=$(curl -s $RPC_URL/block | jq -r .result.block.header.height);
 BLOCK_HEIGHT=$((LATEST_HEIGHT - 1000));
 TRUST_HASH=$(curl -s "$RPC_URL/block?height=$BLOCK_HEIGHT" | jq -r .result.block_id.hash) 
 
-echo $LATEST_HEIGHT $BLOCK_HEIGHT $TRUST_HASH && sleep 2
-
 sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1true| ;
 s|^(rpc_servers[[:space:]]+=[[:space:]]+).*$|\1\"$RPC_URL,$RPC_URL\"| ;
 s|^(trust_height[[:space:]]+=[[:space:]]+).*$|\1$BLOCK_HEIGHT| ;
