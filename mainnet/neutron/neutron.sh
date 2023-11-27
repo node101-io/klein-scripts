@@ -12,22 +12,29 @@ echo -e ':!:  !:!  :!:  !:!  :!:  !:!  :!:         :!:  :!:    !:!    :!:'
 echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
+# Updates
+sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
+
+echo "5 installation_progress"
+
 # Variables
-# $PROJECT must be in quotation marks
-PROJECT="neutron"
-URL=https://snapshots.polkachu.com/snapshots
+PROJECT=neutron
 EXECUTE=neutrond
-CHAIN_ID=neutron-1
+RPC_URL=https://neutron-rpc.polkachu.com
+CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
 SYSTEM_FOLDER=.neutrond
 PROJECT_FOLDER=neutron
-VERSION=v1.0.2
+VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
+if [[ $VERSION != v* ]]; then
+  VERSION="v$VERSION"
+fi
 REPO=https://github.com/neutron-org/neutron.git
 GENESIS_FILE=https://snapshots.polkachu.com/genesis/neutron/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/addrbook/neutron/addrbook.json
 PORT=26
 DENOM=untrn
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | sed 's/^go//')
-PEERS="e5d2743d9a3de514e4f7b9461bf3f0c1500c58d9@neutron.peer.stakewith.us:39956"
+GO_VERSION="1.20"
+PEERS="7391507aee61ea9a1e9de59ce0d4b90ea46c361a@141.94.199.25:34022,c6c9b3947f0f653cc8895f13bff503f9cae3e070@93.159.130.4:26656,b846baf7588a62fb0cbea3db23dd9d3e1fb8f610@95.216.245.153:26666,3341bddbb5cc18b8f1e4518956afb7d81b727c3e@65.21.200.95:26656,43381ce30d0fe93520e8504b98c6971dd47a2c07@136.243.130.162:26656"
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@seeds.polkachu.com:19156"
 
 sleep 2
@@ -46,7 +53,6 @@ echo "export GO_VERSION=${GO_VERSION}" >> $HOME/.bash_profile
 echo "export PEERS=${PEERS}" >> $HOME/.bash_profile
 echo "export SEEDS=${SEEDS}" >> $HOME/.bash_profile
 
-
 source $HOME/.bash_profile
 
 sleep 1
@@ -54,11 +60,6 @@ if [ ! $MONIKER ]; then
 	read -p "ENTER MONIKER NAME: " MONIKER
 	echo 'export MONIKER='$MONIKER >> $HOME/.bash_profile
 fi
-
-echo "5 installation_progress"
-
-# Updates
-sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
 
 echo "30 installation_progress"
 
@@ -85,11 +86,43 @@ make build
 make install
 sleep 1
 
+# Prepare binaries for Cosmovisor
+mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
+mv build/${EXECUTE} $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+rm -rf build
+
+# Create application symlinks
+sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis $HOME/${SYSTEM_FOLDER}/cosmovisor/current -f
+sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin/${EXECUTE} /usr/local/bin/${EXECUTE} -f
+
+# Download and install Cosmovisor
+go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
+
+# Create service
+sudo tee /etc/systemd/system/${EXECUTE}.service > /dev/null << EOF
+[Unit]
+Description=${EXECUTE}
+After=network-online.target
+
+[Service]
+User=$USER
+ExecStart=$(which cosmovisor) run start
+Restart=on-failure
+RestartSec=10
+LimitNOFILE=65535
+Environment="DAEMON_HOME=$HOME/${SYSTEM_FOLDER}"
+Environment="DAEMON_NAME=${EXECUTE}"
+Environment="UNSAFE_SKIP_BACKUP=true"
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 $EXECUTE config chain-id $CHAIN_ID
 $EXECUTE config keyring-backend test
-$EXECUTE config node tcp://localhost:26657
+$EXECUTE config node tcp://localhost:${PORT}657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
-
 
 # Set peers and seeds
 sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
@@ -99,7 +132,7 @@ sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config
 curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
 curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
 
-echo "85 installation_progress"
+echo "75 installation_progress"
 
 # Set Config Pruning
 pruning="custom"
@@ -111,39 +144,20 @@ sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_rec
 sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
-
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.01$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
-
-
-# Creating your systemd service
-sudo tee <<EOF >/dev/null /etc/systemd/system/$EXECUTE.service
-[Unit]
-Description=$EXECUTE
-After=network-online.target
-
-[Service]
-User=$USER
-ExecStart=$(which $EXECUTE) start --home $HOME/$SYSTEM_FOLDER
-Restart=on-failure
-RestartSec=10
-LimitNOFILE=65535
-
-[Install]
-WantedBy=multi-user.target
-EOF
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0025$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 sleep 3 
 
 #fast sync with snapshot
-JSON_DATA=$(curl -s "$URL")
-RESULT=$(echo "$JSON_DATA" | grep -o "<Key>[^<]*$PROJECT[^<]*</Key>" | sed -e 's/<Key>//g' -e 's/<\/Key>//g')
-SNAPSHOT=${URL}/${RESULT}
+SNAPSHOT=https://s3.imperator.co/mainnets-snapshots/neutron/neutron_4796759.tar.lz4
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
 curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
+# Upgrade info
+[[ -f $HOME/$SYSTEM_FOLDER/data/upgrade-info.json ]] && cp $HOME/$SYSTEM_FOLDER/data/upgrade-info.json $HOME/$SYSTEM_FOLDER/cosmovisor/genesis/upgrade-info.json
 
 sudo systemctl daemon-reload
 sudo systemctl enable $EXECUTE
@@ -156,3 +170,4 @@ echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
 echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:${PORT}657/status | jq .result.sync_info\e[0m"
 source $HOME/.bash_profile
 
+rm -- "$0"
