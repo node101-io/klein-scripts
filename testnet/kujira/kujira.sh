@@ -152,7 +152,7 @@ sleep 3
 
 #fast sync with snapshot
 # wget -q -O - https://polkachu.com/testnets/${PROJECT}/snapshots > webpage.html
-SNAPSHOT=https://snapshots.polkachu.com/testnet-snapshots/kujira/kujira_22163311.tar.lz4
+SNAPSHOT=https://snapshots.polkachu.com/testnet-snapshots/kujira/kujira_22196752.tar.lz4
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
