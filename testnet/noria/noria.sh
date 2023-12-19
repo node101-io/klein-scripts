@@ -147,8 +147,10 @@ sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0025$DENOM\"/" $H
 sleep 3 
 
 #fast sync with snapshot
-wget -q -O - https://polkachu.com/testnets/${PROJECT}/snapshots > webpage.html
-SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/testnet-snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
+# wget -q -O - https://polkachu.com/testnets/${PROJECT}/snapshots > webpage.html
+# SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/testnet-snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
+SNAP_NAME=$(curl -s https://ss-t.noria.nodestake.top/ | egrep -o ">20.*\.tar.lz4" | tr -d ">")
+SNAPSHOT=https://ss-t.noria.nodestake.top/${SNAP_NAME}
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
