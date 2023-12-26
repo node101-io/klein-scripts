@@ -20,7 +20,7 @@ echo "5 installation_progress"
 # Variables
 GO_VERSION="1.20"
 EXECUTE=entrypointd
-RPC_URL=https://testnet-rpc.entrypoint.zone:443
+RPC_URL=https://testnet-rpc.entrypoint.zone
 CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
 VERSION="1.3.0"
 BINARY=https://github.com/entrypoint-zone/testnets/releases/download/v${VERSION}/entrypointd-${VERSION}-linux-amd64
@@ -29,6 +29,7 @@ GOPATH=/usr/local/go
 SYSTEM_FOLDER=.entrypoint
 PORT=26
 DENOM=uentry
+SEEDS="e1b2eddac829b1006eb6e2ddbfc9199f212e505f@entrypoint-testnet-seed.itrocket.net:34656"
 PEERS="81bf2ade773a30eccdfee58a041974461f1838d8@185.107.68.148:26656,d57c7572d58cb3043770f2c0ba412b35035233ad@80.64.208.169:26656"
 
 sleep 2
@@ -46,6 +47,7 @@ echo "export SYSTEM_FOLDER=${SYSTEM_FOLDER}" >> $HOME/.bash_profile
 echo "export PORT=${PORT}" >> $HOME/.bash_profile
 echo "export DENOM=${DENOM}" >> $HOME/.bash_profile
 echo "export PEERS=${PEERS}" >> $HOME/.bash_profile
+echo "export SEEDS=${SEEDS}" >> $HOME/.bash_profile
 
 source $HOME/.bash_profile
 
@@ -83,7 +85,7 @@ chmod +x $GOPATH/bin/entrypointd
 sleep 1
 
 # Download and install Cosmovisor
-go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@latest
+go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
 
 # Create Cosmovisor Folders
 mkdir -p ~/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
@@ -119,8 +121,9 @@ $EXECUTE config keyring-backend test
 $EXECUTE config node tcp://localhost:${PORT}657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
-# Set peers
+# Set peers and seeds
 sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
+sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 
 # Download genesis
 curl -Ls ${GENESIS_FILE} > $HOME/$SYSTEM_FOLDER/config/genesis.json
@@ -141,16 +144,11 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 sleep 3 
-# state sync
-LATEST_HEIGHT=$(curl -s $RPC_URL/block | jq -r .result.block.header.height);
-BLOCK_HEIGHT=$((LATEST_HEIGHT - 1000));
-TRUST_HASH=$(curl -s "$RPC_URL/block?height=$BLOCK_HEIGHT" | jq -r .result.block_id.hash) 
-
-sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1true| ;
-s|^(rpc_servers[[:space:]]+=[[:space:]]+).*$|\1\"$RPC_URL,$RPC_URL\"| ;
-s|^(trust_height[[:space:]]+=[[:space:]]+).*$|\1$BLOCK_HEIGHT| ;
-s|^(trust_hash[[:space:]]+=[[:space:]]+).*$|\1\"$TRUST_HASH\"| ;
-s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" $HOME/.entrypoint/config/config.toml
+SNAPSHOT=https://testnet-files.itrocket.net/entrypoint/snap_entrypoint.tar.lz4
+cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
+rm -rf $HOME/$SYSTEM_FOLDER/data/*
+mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
+curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
 # Upgrade info
 [[ -f $HOME/$SYSTEM_FOLDER/data/upgrade-info.json ]] && cp $HOME/$SYSTEM_FOLDER/data/upgrade-info.json $HOME/$SYSTEM_FOLDER/cosmovisor/genesis/upgrade-info.json
