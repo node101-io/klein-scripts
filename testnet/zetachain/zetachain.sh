@@ -20,12 +20,12 @@ echo "5 installation_progress"
 # Variables
 PROJECT=zetachain
 EXECUTE=zetacored
-RPC_URL=https://zetachain-testnet.rpc.kjnodes.com
+RPC_URL=https://zetachain-testnet-rpc.itrocket.net
 CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
-REPO=https://github.com/zeta-chain/node/releases/download/v10.0.0/zetacored-ubuntu-22-amd64
+REPO=https://github.com/zeta-chain/node/releases/download/v${VERSION}/zetacored-linux-amd64
 SYSTEM_FOLDER=.zetacored
-PROJECT_FOLDER=osmosis
+PROJECT_FOLDER=zetacore
 GENESIS_FILE=https://snapshots.kjnodes.com/zetachain-testnet/genesis.json
 ADDRBOOK=https://snapshots.kjnodes.com/zetachain-testnet/addrbook.json
 PORT=26
@@ -143,7 +143,7 @@ sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/$
 sleep 3 
 
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.kjnodes.com/zetachain-testnet/snapshot_latest.tar.lz4
+SNAPSHOT=https://testnet-files.itrocket.net/zetachain/snap_zetachain.tar.lz4
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
