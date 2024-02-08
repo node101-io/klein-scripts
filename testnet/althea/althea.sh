@@ -23,7 +23,7 @@ EXECUTE=althea
 CHAIN_ID=althea_7357-1
 SYSTEM_FOLDER=.althea
 PROJECT_FOLDER=althea-chain
-RPC_URL=https://althea-testnet-rpc.polkachu.com
+RPC_URL=https://althea-testnet.rpc.kjnodes.com
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/althea-net/althea-chain.git
 GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/althea/genesis.json
@@ -80,7 +80,7 @@ git clone $REPO
 cd $PROJECT_FOLDER
 git checkout $VERSION
 make build
-make install
+
 sleep 1
 
 # Prepare binaries for Cosmovisor
