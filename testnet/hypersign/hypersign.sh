@@ -20,7 +20,7 @@ echo "5 installation_progress"
 # Variables
 PROJECT=hypersign
 EXECUTE=hid-noded
-CHAIN_ID=jagrat
+CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
 SYSTEM_FOLDER=.hid-node
 PROJECT_FOLDER=hid-node
 RPC_URL=https://hypersign-testnet-rpc.polkachu.com
