@@ -26,6 +26,7 @@ PROJECT_FOLDER=archway
 RPC_URL=https://archway-testnet-rpc.polkachu.com
 VERSION='v'$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/archway-network/archway.git
+WASM=https://snapshots.kjnodes.com/archway-testnet/wasm_latest.tar.lz4
 GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/archway/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/archway/addrbook.json
 PORT=26
@@ -146,14 +147,22 @@ sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"1000000000000$DENOM
 
 sleep 3 
 
-#fast sync with snapshot
-# wget -q -O - https://polkachu.com/testnets/${PROJECT}/snapshots > webpage.html
-# SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/testnet-snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
-SNAPSHOT=https://snapshots.kjnodes.com/archway-testnet/snapshot_latest.tar.lz4
-cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
-rm -rf $HOME/$SYSTEM_FOLDER/data/*
-mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
-curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
+# state sync
+STATE_SYNC_RPC=https://archway-testnet.rpc.kjnodes.com:443
+LATEST_HEIGHT=$(curl -s $STATE_SYNC_RPC/block | jq -r .result.block.header.height)
+SYNC_BLOCK_HEIGHT=$(($LATEST_HEIGHT - 1000))
+SYNC_BLOCK_HASH=$(curl -s "$STATE_SYNC_RPC/block?height=$SYNC_BLOCK_HEIGHT" | jq -r .result.block_id.hash)
+
+sed -i \
+  -e "s|^enable *=.*|enable = true|" \
+  -e "s|^rpc_servers *=.*|rpc_servers = \"$STATE_SYNC_RPC,$STATE_SYNC_RPC\"|" \
+  -e "s|^trust_height *=.*|trust_height = $SYNC_BLOCK_HEIGHT|" \
+  -e "s|^trust_hash *=.*|trust_hash = \"$SYNC_BLOCK_HASH\"|" \
+  $HOME/${SYSTEM_FOLDER}/config/config.toml
+
+mv $HOME/${SYSTEM_FOLDER}/priv_validator_state.json.backup $HOME/${SYSTEM_FOLDER}/data/priv_validator_state.json
+
+curl -L $WASM | lz4 -dc - | tar -xf - -C $HOME/${SYSTEM_FOLDER}
 
 # Upgrade info
 [[ -f $HOME/$SYSTEM_FOLDER/data/upgrade-info.json ]] && cp $HOME/$SYSTEM_FOLDER/data/upgrade-info.json $HOME/$SYSTEM_FOLDER/cosmovisor/genesis/upgrade-info.json
