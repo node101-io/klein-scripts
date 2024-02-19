@@ -26,8 +26,8 @@ PROJECT_FOLDER=babylon
 RPC_URL=https://babylon-testnet-rpc.itrocket.net
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/babylonchain/babylon.git
-GENESIS_FILE=https://ss-t.babylon.nodestake.top/genesis.json
-ADDRBOOK=https://ss-t.babylon.nodestake.top/addrbook.json
+GENESIS_FILE=https://snapshots.kjnodes.com/babylon-testnet/genesis.json
+ADDRBOOK=https://snapshots.kjnodes.com/babylon-testnet/addrbook.json
 PORT=26
 DENOM=ubbn
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
