@@ -147,16 +147,17 @@ sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.00001$DENOM\"/" $
 
 sleep 3 
 
-#fast sync with snapshot
+# state sync
 cp $HOME/${SYSTEM_FOLDER}/data/priv_validator_state.json $HOME/${SYSTEM_FOLDER}/priv_validator_state.json.backup
 
-LATEST_HEIGHT=$(curl -s $RPC_URL/block | jq -r .result.block.header.height)
+SNAP_RPC=https://babylon-testnet-rpc.itrocket.net:443
+LATEST_HEIGHT=$(curl -s $SNAP_RPC/block | jq -r .result.block.header.height)
 SYNC_BLOCK_HEIGHT=$(($LATEST_HEIGHT - 1000))
-SYNC_BLOCK_HASH=$(curl -s "$RPC_URL/block?height=$SYNC_BLOCK_HEIGHT" | jq -r .result.block_id.hash)
+SYNC_BLOCK_HASH=$(curl -s "$SNAP_RPC/block?height=$SYNC_BLOCK_HEIGHT" | jq -r .result.block_id.hash)
 
 sed -i \
   -e "s|^enable *=.*|enable = true|" \
-  -e "s|^rpc_servers *=.*|rpc_servers = \"$RPC_URL,$RPC_URL\"|" \
+  -e "s|^rpc_servers *=.*|rpc_servers = \"$SNAP_RPC,$SNAP_RPC\"|" \
   -e "s|^trust_height *=.*|trust_height = $SYNC_BLOCK_HEIGHT|" \
   -e "s|^trust_hash *=.*|trust_hash = \"$SYNC_BLOCK_HASH\"|" \
   $HOME/${SYSTEM_FOLDER}/config/config.toml
