@@ -31,7 +31,7 @@ ADDRBOOK=https://testnet-files.itrocket.net/babylon/addrbook.json
 PORT=26
 DENOM=ubbn
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
-PEERS=$(curl -sS ${RPC_URL}/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}' | head -n 5)
+PEERS="30191694cc7836642e7c98f63dc968dfcf453146@babylon-testnet-peer.itrocket.net:39656,9ab866a182c23a955c3ef536042f9ce6ed838013@84.46.250.95:16456,71c5cea9f7220725e733c0c36a115d5cb75c3ce6@84.46.255.29:16456,9d22b711fc95b66f3f3749e93fc1b99151611f7b@161.97.98.66:16456,f11839c36ad2719d1d7d1727f7e3ffa4b7491a9d@89.117.51.248:16456,b8eaf3cb86935bd27e457df0511cba8e45c0634b@144.91.69.96:16456,ad891f5727cc1a3b548d6cce79da66d27bc19458@116.202.208.143:45656,32a1df5368af7cc9d20aa444068a95d99d246cf4@38.242.214.103:16456,3afdfebba5b28288a1dd7a525463e9b55978b0b9@95.217.197.190:16456,a2d1338f7d97a5e2cdd5292852fbb42ef6e078d7@161.97.117.23:16456"
 SEEDS="cf36fd32c32e0bb89682e8b8e82c03049a0f0121@babylon-testnet-seed.itrocket.net:32656"
 
 sleep 2
@@ -85,7 +85,7 @@ sleep 1
 
 # Prepare binaries for Cosmovisor
 mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
-mv $(which $EXECUTE) $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+cp $(which $EXECUTE) $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
 
 # Create application symlinks
 sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis $HOME/${SYSTEM_FOLDER}/cosmovisor/current -f
@@ -95,7 +95,7 @@ sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin/${EXECUTE} /usr/local/b
 go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
 
 # Create service
-sudo tee /etc/systemd/system/omniflixhubd.service > /dev/null << EOF
+sudo tee /etc/systemd/system/${EXECUTE}.service > /dev/null << EOF
 [Unit]
 Description=${EXECUTE}
 After=network-online.target
@@ -145,14 +145,23 @@ sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.00001$DENOM\"/" $
 
 sleep 3 
 
-#fast sync with snapshot
-# wget -q -O - https://polkachu.com/testnets/${PROJECT}/snapshots > webpage.html
-# SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/testnet-snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
-SNAPSHOT=https://testnet-files.itrocket.net/babylon/snap_babylon.tar.lz4
-cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
-rm -rf $HOME/$SYSTEM_FOLDER/data/*
-mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
-curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
+# state sync
+cp $HOME/${SYSTEM_FOLDER}/data/priv_validator_state.json $HOME/${SYSTEM_FOLDER}/priv_validator_state.json.backup
+STATE_SYNC_RPC=https://babylon-testnet.rpc.kjnodes.com:443
+STATE_SYNC_PEER=d5519e378247dfb61dfe90652d1fe3e2b3005a5b@babylon-testnet.rpc.kjnodes.com:16456
+LATEST_HEIGHT=$(curl -s $STATE_SYNC_RPC/block | jq -r .result.block.header.height)
+SYNC_BLOCK_HEIGHT=$(($LATEST_HEIGHT - 1000))
+SYNC_BLOCK_HASH=$(curl -s "$STATE_SYNC_RPC/block?height=$SYNC_BLOCK_HEIGHT" | jq -r .result.block_id.hash)
+
+sed -i \
+  -e "s|^enable *=.*|enable = true|" \
+  -e "s|^rpc_servers *=.*|rpc_servers = \"$STATE_SYNC_RPC,$STATE_SYNC_RPC\"|" \
+  -e "s|^trust_height *=.*|trust_height = $SYNC_BLOCK_HEIGHT|" \
+  -e "s|^trust_hash *=.*|trust_hash = \"$SYNC_BLOCK_HASH\"|" \
+  -e "s|^persistent_peers *=.*|persistent_peers = \"$STATE_SYNC_PEER\"|" \
+  $HOME/${SYSTEM_FOLDER}/config/config.toml
+
+mv $HOME/${SYSTEM_FOLDER}/priv_validator_state.json.backup $HOME/${SYSTEM_FOLDER}/data/priv_validator_state.json
 
 # Upgrade info
 [[ -f $HOME/$SYSTEM_FOLDER/data/upgrade-info.json ]] && cp $HOME/$SYSTEM_FOLDER/data/upgrade-info.json $HOME/$SYSTEM_FOLDER/cosmovisor/genesis/upgrade-info.json
