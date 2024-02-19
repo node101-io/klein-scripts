@@ -31,7 +31,7 @@ ADDRBOOK=https://snapshots.kjnodes.com/babylon-testnet/addrbook.json
 PORT=26
 DENOM=ubbn
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
-PEERS="a98484ac9cb8235bd6a65cdf7648107e3d14dab4@116.202.231.58:16456,370efe6605e1b6055765b4407bd9ca2ecc49b51c@94.154.33.60:26656,8566322ce50e9cb67c43aeb0af27a7814e884ea8@158.220.102.78:16456,c17d77c8e0a064f8919880edd94ab03778231c53@5.252.118.100:26656,d9c93b4823b653e81daa9c567fc0f8a5ee4b6a53@173.249.45.171:26656"
+PEERS=$(curl -sS ${RPC_URL}/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}' | head -n 5)
 SEEDS="3f472746f46493309650e5a033076689996c8881@babylon-testnet.rpc.kjnodes.com:16459"
 
 sleep 2
