@@ -23,16 +23,16 @@ EXECUTE=babylond
 CHAIN_ID=bbn-test-2
 SYSTEM_FOLDER=.babylond
 PROJECT_FOLDER=babylon
-RPC_URL=https://babylon-testnet.rpc.kjnodes.com
+RPC_URL=https://babylon-testnet-rpc.itrocket.net
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/babylonchain/babylon.git
-GENESIS_FILE=https://snapshots.kjnodes.com/babylon-testnet/genesis.json
-ADDRBOOK=https://snapshots.kjnodes.com/babylon-testnet/addrbook.json
+GENESIS_FILE=https://testnet-files.itrocket.net/babylon/genesis.json
+ADDRBOOK=https://testnet-files.itrocket.net/babylon/addrbook.json
 PORT=26
 DENOM=ubbn
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
 PEERS=$(curl -sS ${RPC_URL}/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}' | head -n 5)
-SEEDS="3f472746f46493309650e5a033076689996c8881@babylon-testnet.rpc.kjnodes.com:16459"
+SEEDS="cf36fd32c32e0bb89682e8b8e82c03049a0f0121@babylon-testnet-seed.itrocket.net:32656"
 
 sleep 2
 
@@ -148,7 +148,7 @@ sleep 3
 #fast sync with snapshot
 # wget -q -O - https://polkachu.com/testnets/${PROJECT}/snapshots > webpage.html
 # SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/testnet-snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
-SNAPSHOT=https://snapshots.kjnodes.com/babylon-testnet/snapshot_latest.tar.lz4
+SNAPSHOT=https://testnet-files.itrocket.net/babylon/snap_babylon.tar.lz4
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
