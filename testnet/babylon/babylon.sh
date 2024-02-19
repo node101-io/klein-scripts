@@ -26,7 +26,6 @@ PROJECT_FOLDER=babylon
 RPC_URL=https://babylon-testnet-rpc.itrocket.net
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/babylonchain/babylon.git
-WASM=https://snapshots.kjnodes.com/babylon-testnet/wasm_latest.tar.lz4
 GENESIS_FILE=https://testnet-files.itrocket.net/babylon/genesis.json
 ADDRBOOK=https://testnet-files.itrocket.net/babylon/addrbook.json
 PORT=26
@@ -43,7 +42,6 @@ echo "export SYSTEM_FOLDER=${SYSTEM_FOLDER}" >> $HOME/.bash_profile
 echo "export PROJECT_FOLDER=${PROJECT_FOLDER}" >> $HOME/.bash_profile
 echo "export VERSION=${VERSION}" >> $HOME/.bash_profile
 echo "export REPO=${REPO}" >> $HOME/.bash_profile
-echo "export WASM=${WASM}" >> $HOME/.bash_profile
 echo "export GENESIS_FILE=${GENESIS_FILE}" >> $HOME/.bash_profile
 echo "export ADDRBOOK=${ADDRBOOK}" >> $HOME/.bash_profile
 echo "export PORT=${PORT}" >> $HOME/.bash_profile
@@ -147,24 +145,14 @@ sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.00001$DENOM\"/" $
 
 sleep 3 
 
-# state sync
-cp $HOME/${SYSTEM_FOLDER}/data/priv_validator_state.json $HOME/${SYSTEM_FOLDER}/priv_validator_state.json.backup
-
-SNAP_RPC=https://babylon-testnet-rpc.itrocket.net:443
-LATEST_HEIGHT=$(curl -s $SNAP_RPC/block | jq -r .result.block.header.height)
-SYNC_BLOCK_HEIGHT=$(($LATEST_HEIGHT - 1000))
-SYNC_BLOCK_HASH=$(curl -s "$SNAP_RPC/block?height=$SYNC_BLOCK_HEIGHT" | jq -r .result.block_id.hash)
-
-sed -i \
-  -e "s|^enable *=.*|enable = true|" \
-  -e "s|^rpc_servers *=.*|rpc_servers = \"$SNAP_RPC,$SNAP_RPC\"|" \
-  -e "s|^trust_height *=.*|trust_height = $SYNC_BLOCK_HEIGHT|" \
-  -e "s|^trust_hash *=.*|trust_hash = \"$SYNC_BLOCK_HASH\"|" \
-  $HOME/${SYSTEM_FOLDER}/config/config.toml
-
-mv $HOME/${SYSTEM_FOLDER}/priv_validator_state.json.backup $HOME/${SYSTEM_FOLDER}/data/priv_validator_state.json
-
-curl -L $WASM | lz4 -dc - | tar -xf - -C $HOME/${SYSTEM_FOLDER}
+#fast sync with snapshot
+# wget -q -O - https://polkachu.com/testnets/${PROJECT}/snapshots > webpage.html
+# SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/testnet-snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
+SNAPSHOT=https://testnet-files.itrocket.net/babylon/snap_babylon.tar.lz4
+cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
+rm -rf $HOME/$SYSTEM_FOLDER/data/*
+mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
+curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
 
 # Upgrade info
 [[ -f $HOME/$SYSTEM_FOLDER/data/upgrade-info.json ]] && cp $HOME/$SYSTEM_FOLDER/data/upgrade-info.json $HOME/$SYSTEM_FOLDER/cosmovisor/genesis/upgrade-info.json
