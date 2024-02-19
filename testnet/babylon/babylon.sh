@@ -163,6 +163,8 @@ sed -i \
 
 mv $HOME/${SYSTEM_FOLDER}/priv_validator_state.json.backup $HOME/${SYSTEM_FOLDER}/data/priv_validator_state.json
 
+curl -L https://snapshots.kjnodes.com/babylon-testnet/wasm_latest.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/${SYSTEM_FOLDER}
+
 # Upgrade info
 [[ -f $HOME/$SYSTEM_FOLDER/data/upgrade-info.json ]] && cp $HOME/$SYSTEM_FOLDER/data/upgrade-info.json $HOME/$SYSTEM_FOLDER/cosmovisor/genesis/upgrade-info.json
 
