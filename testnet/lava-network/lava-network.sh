@@ -31,7 +31,7 @@ ADDRBOOK=https://snapshots.kjnodes.com/lava-testnet/addrbook.json
 PORT=26
 DENOM=ulava
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
-PEERS="d796c20b5bdb8f1633c2a13afbf12314a77b668c@91.107.148.113:26656,e5f324d671e8bba44cd8eef2cb5b6e46ccf4f95a@65.108.199.120:60756,5a469a75fb05eddf2d79fb17063cc59e84d0821a@207.180.236.115:34656,90451ff8f47b8f4b077e95837f112135fea14531@207.180.231.123:31656,0ec7ad403c4caa1d3cd3f8226f456cc568eeec90@65.108.124.121:36656,0e0e01f932a124c45f7f8600e38dba445b5f5dc4@65.108.226.183:19956,d5519e378247dfb61dfe90652d1fe3e2b3005a5b@65.109.68.190:14456,1451ff82a2d91002d0db713ce2b059593f6c7d32@167.86.82.139:26646,b16eb3c538b9a460612a4cea37c2657f15579126@65.109.30.90:11656"
+PEERS=$(curl -sS https://lava-testnet-rpc.polkachu.com/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}' | head -n 5 | paste -sd, -)
 SEEDS="3f472746f46493309650e5a033076689996c8881@lava-testnet.rpc.kjnodes.com:14459"
 
 sleep 2
