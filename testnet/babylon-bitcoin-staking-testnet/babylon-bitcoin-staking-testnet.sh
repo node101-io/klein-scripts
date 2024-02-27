@@ -1,6 +1,6 @@
 #! /bin/bash
 
-echo -e '\e[0m'                                                              
+echo -e '\e[0m'
 echo -e '@@@  @@@   @@@@@@   @@@@@@@   @@@@@@@@    @@@   @@@@@@@@     @@@'
 echo -e '@@@@ @@@  @@@@@@@@  @@@@@@@@  @@@@@@@@   @@@@  @@@@@@@@@@   @@@@'
 echo -e '@@!@!@@@  @@!  @@@  @@!  @@@  @@!       @@@!!  @@!   @@@@  @@@!!'
@@ -20,7 +20,7 @@ echo "5 installation_progress"
 # Variables
 PROJECT=babylon
 EXECUTE=babylond
-RPC_URL=https://babylon-testnet-rpc.polkachu.com
+RPC_URL=https://babylon-testnet-rpc.itrocket.net
 CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/babylonchain/babylon.git
@@ -29,6 +29,7 @@ SYSTEM_FOLDER=.babylond
 GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/babylon/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/babylon/addrbook.json
 DENOM=ubbn
+PORT=26
 GO_VERSION="1.21.6"
 PEERS=$(curl -sS ${RPC_URL}/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}' | head -n 5 | paste -sd, -)
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:20656"
@@ -104,7 +105,7 @@ After=network-online.target
 
 [Service]
 User=$USER
-ExecStart=$(which cosmovisor) run start --x-crisis-skip-assert-invariants
+ExecStart=$(which cosmovisor) run start
 Restart=on-failure
 RestartSec=10
 LimitNOFILE=65535
@@ -118,13 +119,14 @@ WantedBy=multi-user.target
 EOF
 
 $EXECUTE config chain-id $CHAIN_ID
-$EXCUTE config keyring-backend test
-$EXECUTE config node tcp://localhost:26657
+$EXECUTE config keyring-backend test
+$EXECUTE config node tcp://localhost:${PORT}657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 # Set peers and seeds
 sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
+sed -i -e "s/^timeout_commit *=.*/timeout_commit = \"30s\"/" $HOME/.babylond/config/config.toml
 
 # Download genesis and addrbook
 curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
@@ -146,10 +148,10 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.00001$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 sed -i -e "s|^network *=.*|network = \"signet\"|" $HOME/$SYSTEM_FOLDER/config/app.toml
 
-sleep 3 
+sleep 3
 
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.polkachu.com/testnet-snapshots/babylon/babylon_44206.tar.lz4
+SNAPSHOT=https://testnet-files.itrocket.net/babylon/snap_babylon.tar.lz4
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
@@ -166,5 +168,5 @@ echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
 
 echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
-echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:26657/status | jq .result.sync_info\e[0m"
+echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:${PORT}657/status | jq .result.sync_info\e[0m"
 source $HOME/.bash_profile
