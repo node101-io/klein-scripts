@@ -49,6 +49,7 @@ echo "export REPO=${REPO}" >> $HOME/.bash_profile
 echo "export GENESIS_FILE=${GENESIS_FILE}" >> $HOME/.bash_profile
 echo "export ADDRBOOK=${ADDRBOOK}" >> $HOME/.bash_profile
 echo "export DENOM=${DENOM}" >> $HOME/.bash_profile
+echo "export PORT=${PORT}" >> $HOME/.bash_profile
 echo "export GO_VERSION=${GO_VERSION}" >> $HOME/.bash_profile
 echo "export PEERS=${PEERS}" >> $HOME/.bash_profile
 echo "export SEEDS=${SEEDS}" >> $HOME/.bash_profile
@@ -82,13 +83,14 @@ rm -rf $PROJECT_FOLDER
 git clone $REPO
 cd $PROJECT_FOLDER
 git checkout $VERSION
-make install
+make build
 
 sleep 1
 
 # Prepare binaries for Cosmovisor
 mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
-mv $(which $EXECUTE) $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+mv build/$EXECUTE $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+rm -rf build
 
 # Create application symlinks
 sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis $HOME/${SYSTEM_FOLDER}/cosmovisor/current -f
@@ -118,15 +120,12 @@ Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/
 WantedBy=multi-user.target
 EOF
 
-$EXECUTE config chain-id $CHAIN_ID
-$EXECUTE config keyring-backend test
-$EXECUTE config node tcp://localhost:${PORT}657
+$EXECUTE config set client chain-id $CHAIN_ID
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 # Set peers and seeds
 sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
 sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
-sed -i -e "s/^timeout_commit *=.*/timeout_commit = \"30s\"/" $HOME/.babylond/config/config.toml
 
 # Download genesis and addrbook
 curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
