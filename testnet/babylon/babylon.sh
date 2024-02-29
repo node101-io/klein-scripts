@@ -1,6 +1,6 @@
 #! /bin/bash
 
-echo -e '\e[0m'                                                              
+echo -e '\e[0m'
 echo -e '@@@  @@@   @@@@@@   @@@@@@@   @@@@@@@@    @@@   @@@@@@@@     @@@'
 echo -e '@@@@ @@@  @@@@@@@@  @@@@@@@@  @@@@@@@@   @@@@  @@@@@@@@@@   @@@@'
 echo -e '@@!@!@@@  @@!  @@@  @@!  @@@  @@!       @@@!!  @@!   @@@@  @@@!!'
@@ -20,19 +20,23 @@ echo "5 installation_progress"
 # Variables
 PROJECT=babylon
 EXECUTE=babylond
-CHAIN_ID=bbn-test-2
-SYSTEM_FOLDER=.babylond
-PROJECT_FOLDER=babylon
 RPC_URL=https://babylon-testnet-rpc.itrocket.net
+CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/babylonchain/babylon.git
-GENESIS_FILE=https://snapshots.kjnodes.com/babylon-testnet/genesis.json
-ADDRBOOK=https://snapshots.kjnodes.com/babylon-testnet/addrbook.json
-PORT=26
+PROJECT_FOLDER=babylon
+SYSTEM_FOLDER=.babylond
+GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/babylon/genesis.json
+ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/babylon/addrbook.json
 DENOM=ubbn
-GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
-PEERS=$(curl -sS https://babylon-testnet-rpc.itrocket.net/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}' | head -n 5 | paste -sd, -)
-SEEDS="3f472746f46493309650e5a033076689996c8881@babylon-testnet.rpc.kjnodes.com:16459"
+PORT=26
+GO_VERSION="1.21.6"
+PEERS=$(curl -sS ${RPC_URL}/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}' | head -n 5 | paste -sd, -)
+SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:20656"
+
+if [[ $VERSION != v* ]]; then
+  VERSION="v$VERSION"
+fi
 
 sleep 2
 
@@ -44,8 +48,8 @@ echo "export VERSION=${VERSION}" >> $HOME/.bash_profile
 echo "export REPO=${REPO}" >> $HOME/.bash_profile
 echo "export GENESIS_FILE=${GENESIS_FILE}" >> $HOME/.bash_profile
 echo "export ADDRBOOK=${ADDRBOOK}" >> $HOME/.bash_profile
-echo "export PORT=${PORT}" >> $HOME/.bash_profile
 echo "export DENOM=${DENOM}" >> $HOME/.bash_profile
+echo "export PORT=${PORT}" >> $HOME/.bash_profile
 echo "export GO_VERSION=${GO_VERSION}" >> $HOME/.bash_profile
 echo "export PEERS=${PEERS}" >> $HOME/.bash_profile
 echo "export SEEDS=${SEEDS}" >> $HOME/.bash_profile
@@ -79,13 +83,14 @@ rm -rf $PROJECT_FOLDER
 git clone $REPO
 cd $PROJECT_FOLDER
 git checkout $VERSION
-make install
+make build
 
 sleep 1
 
 # Prepare binaries for Cosmovisor
 mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
-cp $(which $EXECUTE) $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+mv build/$EXECUTE $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+rm -rf build
 
 # Create application symlinks
 sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis $HOME/${SYSTEM_FOLDER}/cosmovisor/current -f
@@ -115,9 +120,7 @@ Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/
 WantedBy=multi-user.target
 EOF
 
-$EXECUTE config chain-id $CHAIN_ID
-$EXECUTE config keyring-backend test
-$EXECUTE config node tcp://localhost:${PORT}657
+$EXECUTE config set client chain-id $CHAIN_ID
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 # Set peers and seeds
@@ -142,11 +145,12 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 
 # Set minimum gas price
 sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.00001$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s|^network *=.*|network = \"signet\"|" $HOME/$SYSTEM_FOLDER/config/app.toml
 
-sleep 3 
+sleep 3
 
-# state sync
-SNAPSHOT=https://snapshots-testnet.nodejumper.io/babylon-testnet/babylon-testnet_latest.tar.lz4
+#fast sync with snapshot
+SNAPSHOT=https://testnet-files.itrocket.net/babylon/snap_babylon.tar.lz4
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
@@ -165,5 +169,3 @@ echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
 echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:${PORT}657/status | jq .result.sync_info\e[0m"
 source $HOME/.bash_profile
-
-rm -- "$0"
