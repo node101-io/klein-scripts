@@ -82,7 +82,7 @@ git checkout $VERSION
 
 export LAVA_BINARY=lavad
 make build
-make install
+
 sleep 1
 
 # Prepare binaries for Cosmovisor
