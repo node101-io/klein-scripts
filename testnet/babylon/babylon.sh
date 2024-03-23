@@ -20,7 +20,7 @@ echo "5 installation_progress"
 # Variables
 PROJECT=babylon
 EXECUTE=babylond
-RPC_URL=https://babylon-testnet-rpc.itrocket.net
+RPC_URL=https://babylon-testnet-rpc.polkachu.com
 CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/babylonchain/babylon.git
@@ -30,7 +30,7 @@ GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/babylon/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/babylon/addrbook.json
 DENOM=ubbn
 PORT=26
-GO_VERSION="1.21.6"
+GO_VERSION="1.21"
 PEERS=$(curl -sS ${RPC_URL}/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}' | head -n 5 | paste -sd, -)
 SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:20656"
 
@@ -65,6 +65,7 @@ fi
 echo "30 installation_progress"
 
 # Go installation
+GO_VERSION="1.21.6"
 cd $HOME
 wget "https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
@@ -83,14 +84,13 @@ rm -rf $PROJECT_FOLDER
 git clone $REPO
 cd $PROJECT_FOLDER
 git checkout $VERSION
-make build
+make install
 
 sleep 1
 
 # Prepare binaries for Cosmovisor
 mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
-mv build/$EXECUTE $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
-rm -rf build
+cp /root/go/bin/$EXECUTE $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
 
 # Create application symlinks
 sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis $HOME/${SYSTEM_FOLDER}/cosmovisor/current -f
@@ -121,6 +121,7 @@ WantedBy=multi-user.target
 EOF
 
 $EXECUTE config set client chain-id $CHAIN_ID
+$EXECUTE config set client keyring-backend test
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 # Set peers and seeds
@@ -150,7 +151,7 @@ sed -i -e "s|^network *=.*|network = \"signet\"|" $HOME/$SYSTEM_FOLDER/config/ap
 sleep 3
 
 #fast sync with snapshot
-SNAPSHOT=https://testnet-files.itrocket.net/babylon/snap_babylon.tar.lz4
+SNAPSHOT=https://snapshots.lavenderfive.com/testnet-snapshots/babylon/babylon_109973.tar.lz4
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
