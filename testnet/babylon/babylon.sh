@@ -20,7 +20,7 @@ echo "5 installation_progress"
 # Variables
 PROJECT=babylon
 EXECUTE=babylond
-RPC_URL=https://babylon-testnet-rpc.polkachu.com
+RPC_URL=https://babylon-testnet.rpc.kjnodes.com
 CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
 VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
 REPO=https://github.com/babylonchain/babylon.git
@@ -30,9 +30,9 @@ GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/babylon/genesis.json
 ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/babylon/addrbook.json
 DENOM=ubbn
 PORT=26
-GO_VERSION="1.21"
+GO_VERSION="1.21.6"
 PEERS=$(curl -sS ${RPC_URL}/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}' | head -n 5 | paste -sd, -)
-SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:20656"
+SEEDS="3f472746f46493309650e5a033076689996c8881@babylon-testnet.rpc.kjnodes.com:16459"
 
 if [[ $VERSION != v* ]]; then
   VERSION="v$VERSION"
@@ -65,7 +65,6 @@ fi
 echo "30 installation_progress"
 
 # Go installation
-GO_VERSION="1.21.6"
 cd $HOME
 wget "https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
@@ -90,7 +89,7 @@ sleep 1
 
 # Prepare binaries for Cosmovisor
 mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
-cp /root/go/bin/$EXECUTE $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+cp $HOME/go/bin/${EXECUTE} $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
 
 # Create application symlinks
 sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis $HOME/${SYSTEM_FOLDER}/cosmovisor/current -f
@@ -151,7 +150,7 @@ sed -i -e "s|^network *=.*|network = \"signet\"|" $HOME/$SYSTEM_FOLDER/config/ap
 sleep 3
 
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.lavenderfive.com/testnet-snapshots/babylon/babylon_109973.tar.lz4
+SNAPSHOT=https://snapshots.kjnodes.com/babylon-testnet/snapshot_latest.tar.lz4
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
@@ -170,3 +169,28 @@ echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
 echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:${PORT}657/status | jq .result.sync_info\e[0m"
 source $HOME/.bash_profile
+
+
+sudo systemctl stop babylond.service
+cp $HOME/.babylond/data/priv_validator_state.json $HOME/.babylond/priv_validator_state.json.backup
+babylond tendermint unsafe-reset-all --keep-addr-book --home $HOME/.babylond
+
+
+STATE_SYNC_RPC=https://babylon-testnet.rpc.kjnodes.com:443
+STATE_SYNC_PEER=d5519e378247dfb61dfe90652d1fe3e2b3005a5b@babylon-testnet.rpc.kjnodes.com:16456
+LATEST_HEIGHT=$(curl -s $STATE_SYNC_RPC/block | jq -r .result.block.header.height)
+SYNC_BLOCK_HEIGHT=$(($LATEST_HEIGHT - 1000))
+SYNC_BLOCK_HASH=$(curl -s "$STATE_SYNC_RPC/block?height=$SYNC_BLOCK_HEIGHT" | jq -r .result.block_id.hash)
+
+sed -i \
+  -e "s|^enable *=.*|enable = true|" \
+  -e "s|^rpc_servers *=.*|rpc_servers = \"$STATE_SYNC_RPC,$STATE_SYNC_RPC\"|" \
+  -e "s|^trust_height *=.*|trust_height = $SYNC_BLOCK_HEIGHT|" \
+  -e "s|^trust_hash *=.*|trust_hash = \"$SYNC_BLOCK_HASH\"|" \
+  -e "s|^persistent_peers *=.*|persistent_peers = \"$STATE_SYNC_PEER\"|" \
+  $HOME/.babylond/config/config.toml
+
+mv $HOME/.babylond/priv_validator_state.json.backup $HOME/.babylond/data/priv_validator_state.json
+
+
+curl -L https://snapshots.kjnodes.com/babylon-testnet/wasm_latest.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.babylond
