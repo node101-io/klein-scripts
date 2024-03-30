@@ -83,13 +83,14 @@ rm -rf $PROJECT_FOLDER
 git clone $REPO
 cd $PROJECT_FOLDER
 git checkout $VERSION
-make install
+make build
 
 sleep 1
 
 # Prepare binaries for Cosmovisor
 mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
-mv $(which $EXECUTE) $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+mv build/${EXECUTE} $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
+rm -rf build
 
 # Create application symlinks
 sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis $HOME/${SYSTEM_FOLDER}/cosmovisor/current -f
@@ -146,7 +147,7 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.005$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.002$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
 
 sleep 3
 
