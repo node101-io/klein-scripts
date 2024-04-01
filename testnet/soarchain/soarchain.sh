@@ -82,8 +82,8 @@ mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
 wget -O $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/${EXECUTE} $BINARY
 chmod +x $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/${EXECUTE}
 
-sudo wget -O /var/lib/libwasmvm.x86_64.so
-sudo mv /var/lib/libwasmvm.x86_64.so /usr/local/lib/ $LIBWASM
+sudo wget -O /var/lib/libwasmvm.x86_64.so $LIBWASM
+sudo mv /var/lib/libwasmvm.x86_64.so /usr/local/lib/
 sudo ldconfig
 
 # Create application symlinks
