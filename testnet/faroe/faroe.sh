@@ -18,24 +18,16 @@ sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang p
 echo "5 installation_progress"
 
 # Variables
-PROJECT=cosmos
-EXECUTE=gaiad
-RPC_URL=https://cosmos-testnet-rpc.polkachu.com
-CHAIN_ID=$(curl -s -L "${RPC_URL}/status?" | jq -r '.result.node_info.network')
-SYSTEM_FOLDER=.gaia
-PROJECT_FOLDER=gaia
-VERSION=$(curl -s -L "${RPC_URL}/abci_info?" | jq -r '.result.response.version')
-if [[ $VERSION != v* ]]; then
-  VERSION="v$VERSION"
-fi
-REPO=https://github.com/cosmos/gaia.git
-GENESIS_FILE=https://snapshots.polkachu.com/testnet-genesis/cosmos/genesis.json
-ADDRBOOK=https://snapshots.polkachu.com/testnet-addrbook/cosmos/addrbook.json
+EXECUTE=interchain-security-cd
+CHAIN_ID=test-faroe-1
+SYSTEM_FOLDER=.faroe
+PROJECT_FOLDER=interchain-security
+VERSION=v4.0.0
+REPO=https://github.com/cosmos/interchain-security.git
 PORT=26
-DENOM=uatom
-GO_VERSION="1.21.9"
-PEERS=$(curl -sS ${RPC_URL}/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}' | head -n 5 | paste -sd, -)
-SEEDS="ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:14956"
+DENOM=ufaro
+GO_VERSION="1.21.6"
+PEERS="1cb1b2c1be0765e4f87139e7a58056c5de46994e@faroe-apple.isle-testnet.polypore.xyz:26656,82344dc34d2f2b63fb878e55f622b77b88c3b7b8@faroe-banana.isle-testnet.polypore.xyz:26656,34056aa7a296accbd5a4ac15f3dc480d0fc4ca29@faroe-cherry.isle-testnet.polypore.xyz:26656,fc78b514df730d19330fb9bd2f3bec8e72d62226@faroe-node.isle-testnet.polypore.xyz:26656"
 
 sleep 2
 
@@ -45,13 +37,10 @@ echo "export SYSTEM_FOLDER=${SYSTEM_FOLDER}" >> $HOME/.bash_profile
 echo "export PROJECT_FOLDER=${PROJECT_FOLDER}" >> $HOME/.bash_profile
 echo "export VERSION=${VERSION}" >> $HOME/.bash_profile
 echo "export REPO=${REPO}" >> $HOME/.bash_profile
-echo "export GENESIS_FILE=${GENESIS_FILE}" >> $HOME/.bash_profile
-echo "export ADDRBOOK=${ADDRBOOK}" >> $HOME/.bash_profile
 echo "export PORT=${PORT}" >> $HOME/.bash_profile
 echo "export DENOM=${DENOM}" >> $HOME/.bash_profile
 echo "export GO_VERSION=${GO_VERSION}" >> $HOME/.bash_profile
 echo "export PEERS=${PEERS}" >> $HOME/.bash_profile
-echo "export SEEDS=${SEEDS}" >> $HOME/.bash_profile
 
 source $HOME/.bash_profile
 
@@ -82,21 +71,19 @@ rm -rf $PROJECT_FOLDER
 git clone $REPO
 cd $PROJECT_FOLDER
 git checkout $VERSION
-make build
+make install
 
 sleep 1
 
-# Prepare binaries for Cosmovisor
-mkdir -p $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
-mv build/${EXECUTE} $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis/bin/
-rm -rf build
-
-# Create application symlinks
-sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/genesis $HOME/${SYSTEM_FOLDER}/cosmovisor/current -f
-sudo ln -s $HOME/${SYSTEM_FOLDER}/cosmovisor/current/bin/${EXECUTE} /usr/local/bin/${EXECUTE} -f
-
 # Download and install Cosmovisor
 go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
+
+# Create Cosmovisor Folders
+mkdir -p ~/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
+mkdir -p ~/${SYSTEM_FOLDER}/cosmovisor/upgrades
+
+# Load Node Binary into Cosmovisor Folder
+cp ~/go/bin/$EXECUTE ~/${SYSTEM_FOLDER}/cosmovisor/genesis/bin
 
 # Create service
 sudo tee /etc/systemd/system/${EXECUTE}.service > /dev/null << EOF
@@ -125,51 +112,23 @@ $EXECUTE config node tcp://localhost:${PORT}657
 $EXECUTE init $MONIKER --chain-id $CHAIN_ID
 
 # Set peers and seeds
-sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
-sed -i -e "s|^seeds *=.*|seeds = \"$SEEDS\"|" $HOME/$SYSTEM_FOLDER/config/config.toml
-
-# Download genesis and addrbook
-curl -Ls $GENESIS_FILE > $HOME/$SYSTEM_FOLDER/config/genesis.json
-curl -Ls $ADDRBOOK > $HOME/$SYSTEM_FOLDER/config/addrbook.json
-
-echo "75 installation_progress"
-
-# Set Config Pruning
-pruning="custom"
-pruning_keep_recent="100"
-pruning_keep_every="0"
-pruning_interval="10"
-sed -i -e "s/^pruning *=.*/pruning = \"$pruning\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
-sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_recent\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
-sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
-sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
+sed -i -e "s|^persistent_peers *=.*|persistent_peers = \"$PEERS\"|" $HOME/${SYSTEM_FOLDER}/config/config.toml
 
 # Set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0025$DENOM\"/" $HOME/$SYSTEM_FOLDER/config/app.toml
-
-sleep 3
-
-#fast sync with snapshot
-# wget -q -O - https://polkachu.com/testnets/${PROJECT}/snapshots > webpage.html
-# SNAPSHOT=$(grep -o "https://snapshots.polkachu.com/testnet-snapshots/${PROJECT}/${PROJECT}_[0-9]*.tar.lz4" webpage.html | head -n 1)
-SNAPSHOT=https://snapshots.polkachu.com/testnet-snapshots/cosmos/cosmos_6463892.tar.lz4
-cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
-rm -rf $HOME/$SYSTEM_FOLDER/data/*
-mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
-curl -L $SNAPSHOT | tar -I lz4 -xf - -C $HOME/$SYSTEM_FOLDER
-
-# Upgrade info
-[[ -f $HOME/$SYSTEM_FOLDER/data/upgrade-info.json ]] && cp $HOME/$SYSTEM_FOLDER/data/upgrade-info.json $HOME/$SYSTEM_FOLDER/cosmovisor/genesis/upgrade-info.json
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0$DENOM\"/" $HOME/.interchain-security-c/config/app.toml
 
 sudo systemctl daemon-reload
+
+curl -Ls https://raw.githubusercontent.com/cosmos/testnets/master/isle/test-easter-1/easter-genesis.json > $HOME/.easter/config/genesis.json
+
 sudo systemctl enable $EXECUTE
-sudo systemctl restart $EXECUTE
+sudo systemctl start $EXECUTE
 
 echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
 
 echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
-echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:2657/status | jq .result.sync_info\e[0m"
+echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:26657/status | jq .result.sync_info\e[0m"
 source $HOME/.bash_profile
 
 rm -- "$0"
