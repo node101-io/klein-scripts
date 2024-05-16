@@ -148,7 +148,7 @@ sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.15uinit,0.01uusdc
 sleep 3
 
 #fast sync with snapshot
-SNAPSHOT=https://snapshots.kjnodes.com/initia-testnet/snapshot_latest.tar.lz4
+SNAPSHOT=https://testnet-files.itrocket.net/initia/snap_initia.tar.lz4
 cp $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup
 rm -rf $HOME/$SYSTEM_FOLDER/data/*
 mv $HOME/$SYSTEM_FOLDER/priv_validator_state.json.backup $HOME/$SYSTEM_FOLDER/data/priv_validator_state.json
