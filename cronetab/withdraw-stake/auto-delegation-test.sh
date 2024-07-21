@@ -34,5 +34,4 @@ while true; do
     fi
 
     date
-    sleep 3600s
 done
