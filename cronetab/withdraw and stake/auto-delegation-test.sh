@@ -25,9 +25,9 @@ AMOUNT_TO_BE_STAKED=$((${AVAILABLE_TOKEN_AMOUNT} - ${DEFAULT_TOKEN_AMOUNT}))
 if [ ${AMOUNT_TO_BE_STAKED} -gt 0 ]; then
     date &>> /var/log/delegate/"$MONITFILENAME"
     ${DAEMON_NAME} tx staking delegate ${VALIDATOR_ADDRESS} ${AMOUNT_TO_BE_STAKED}${DENOM} --from ${WALLET} --chain-id ${CHAIN_ID} --gas-adjustment 1.4 --gas auto --gas-prices ${GAS_PRICE}${DENOM} -y  &>> /var/log/delegate/"$MONITFILENAME"
-    echo "###################################################################" &>> /var/log/withdraw/"$MONITFILENAME"
+    echo "###################################################################" &>> /var/log/delegate/"$MONITFILENAME"
 elif [ ${AMOUNT_TO_BE_STAKED} -eq 0 ]; then
     date &>> /var/log/delegate/"$MONITFILENAME"
-    echo "Amount to be staked is 0" &>> /var/log/delegate/"$MONITFILENAME"
-    echo "###################################################################" &>> /var/log/withdraw/"$MONITFILENAME"
+    echo "Amount to be delegated is 0" &>> /var/log/delegate/"$MONITFILENAME"
+    echo "###################################################################" &>> /var/log/delegate/"$MONITFILENAME"
 fi
