@@ -12,69 +12,77 @@ echo -e ':!:  !:!  :!:  !:!  :!:  !:!  :!:         :!:  :!:    !:!    :!:'
 echo -e ':::   ::   ::::::   :::::::   :::::::     :::   ::::::::     :::'
 echo -e '\e[0m'
 
-# Variables
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu \
+    bsdmainutils htop net-tools lsof liblz4-tool aria2 chrony
 
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
 REPO=https://github.com/celestiaorg/celestia-node.git
-VERSION=v0.13.2
-EXECUTE=celestia-lightd
-PORT=26
 PROJECT_FOLDER=celestia-node
-DENOM=utia
-CHAIN_ID=mocha-4
-sleep 2
+DAEMON_VERSION=v0.14.0
+DAEMON_NAME=celestia-lightd
+DAEMON_NETWORK=mocha
+DEFAULT_KEY_NAME=my_celes_key
+DEFAULT_RPC_PORT=10101
+NODE_TYPE=light
+RPC_ENDPOINT=rpc-mocha.pops.one
+CELESTIA_OTEL_URL=otel.celestia.tools:4318
 
-echo "export GO_VERSION=${GO_VERSION}" >> $HOME/.bash_profile
-echo "export REPO=${REPO}" >> $HOME/.bash_profile
-echo "export VERSION=${VERSION}" >> $HOME/.bash_profile
-echo "export EXECUTE=${EXECUTE}" >> $HOME/.bash_profile
-echo "export PORT=${PORT}" >> $HOME/.bash_profile
-echo "export PROJECT_FOLDER=${PROJECT_FOLDER}" >> $HOME/.bash_profile
-echo "export DENOM=${DENOM}" >> $HOME/.bash_profile
-echo "export CHAIN_ID=${CHAIN_ID}" >> $HOME/.bash_profile
+echo "export GO_VERSION=${GO_VERSION}" >> ${HOME}/.bash_profile
+echo "export REPO=${REPO}" >> ${HOME}/.bash_profile
+echo "export PROJECT_FOLDER=${PROJECT_FOLDER}" >> ${HOME}/.bash_profile
+echo "export DAEMON_VERSION=${DAEMON_VERSION}" >> ${HOME}/.bash_profile
+echo "export DAEMON_NAME=${DAEMON_NAME}" >> ${HOME}/.bash_profile
+echo "export DAEMON_NETWORK=${DAEMON_NETWORK}" >> ${HOME}/.bash_profile
+echo "export NODE_TYPE=${NODE_TYPE}" >> ${HOME}/.bash_profile
 
-source $HOME/.bash_profile
-
-sleep 1
-
-# Updates
-sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y && sudo apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop net-tools lsof -y < "/dev/null" && sudo apt-get update -y && sudo apt-get install wget liblz4-tool aria2 -y && sudo apt update && sudo apt upgrade -y && sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential git make ncdu -y
-
-echo "15 installation_progress"
-
-cd $HOME
-wget "https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz"
+cd ${HOME}
+wget "https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf "go$GO_VERSION.linux-amd64.tar.gz"
-rm "go$GO_VERSION.linux-amd64.tar.gz"
-echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
-source $HOME/.bash_profile
-go version
+sudo tar -C /usr/local -xzf "go${GO_VERSION}.linux-amd64.tar.gz"
+rm "go${GO_VERSION}.linux-amd64.tar.gz"
+echo "export PATH=$PATH:/usr/local/go/bin:${HOME}/go/bin" >> ${HOME}/.bash_profile
+
+source ${HOME}/.bash_profile
 
 sleep 1
 
-echo "30 installation_progress"
-
-# Install Celestia Node
-cd $HOME
-rm -rf celestia-node
+cd ${HOME}
+rm -rf ${PROJECT_FOLDER}
 git clone $REPO
-cd celestia-node
-git checkout tags/$VERSION
+cd ${PROJECT_FOLDER}
+git checkout tags/${DAEMON_VERSION}
 make build
-make install
+
+mv build/${DAEMON_NAME} /usr/local/bin/
+rm -rf build
+
 make cel-key
+mv cel-key /usr/local/bin/
 
-echo "80 installation_progress"
+cd ${HOME}
 
-# Creating your systemd service
-sudo tee <<EOF >/dev/null /etc/systemd/system/$EXECUTE.service
+celestia ${NODE_TYPE} init --p2p.network ${DAEMON_NETWORK}
+
+cel-key add ${DEFAULT_KEY_NAME} \
+  --keyring-backend test \
+  --node.type ${NODE_TYPE} \
+  --p2p.network ${DAEMON_NETWORK}
+
+sudo tee <<EOF >/dev/null /etc/systemd/system/${DAEMON_NAME}.service
 [Unit]
-Description=$EXECUTE Light Node
+Description=${DAEMON_NAME} ${NODE_TYPE} Node
 After=network-online.target
 [Service]
 User=root
-ExecStart=/usr/local/bin/celestia light start --core.ip rpc-mocha.pops.one --core.rpc.port 26657 --core.grpc.port 9090 --keyring.accname my_celes_key --metrics.tls=false --metrics --metrics.endpoint otel.celestia.tools:4318 --gateway --gateway.addr localhost --gateway.port 26659 --p2p.network mocha
+ExecStart=$(which ${DAEMON_NAME}) ${NODE_TYPE} start \
+  --core.ip ${RPC_ENDPOINT} \
+  --keyring.accname ${DEFAULT_KEY_NAME} \
+  --metrics.tls=false \
+  --metrics \
+  --metrics.endpoint ${CELESTIA_OTEL_URL} \
+  --p2p.network ${DAEMON_NETWORK} \
+  --rpc.port ${DEFAULT_RPC_PORT}
 Restart=on-failure
 RestartSec=3
 LimitNOFILE=4096
@@ -83,12 +91,11 @@ WantedBy=multi-user.target
 EOF
 
 sudo systemctl daemon-reload
-sudo systemctl enable $EXECUTE
-sudo systemctl restart $EXECUTE
-
-echo "export NODE_PROPERLY_INSTALLED=true" >> $HOME/.bash_profile
+sudo systemctl enable ${DAEMON_NAME}
+sudo systemctl restart ${DAEMON_NAME}
 
 echo '=============== SETUP IS FINISHED ==================='
-echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${EXECUTE} -o cat\e[0m"
-echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:${PORT}657/status | jq .result.sync_info\e[0m"
-source $HOME/.bash_profile
+echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${DAEMON_NAME} -o cat\e[0m"
+echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:26657/status | jq .result.sync_info\e[0m"
+
+source ${HOME}/.bash_profile
