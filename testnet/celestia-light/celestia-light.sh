@@ -20,7 +20,7 @@ GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go
 REPO=https://github.com/celestiaorg/celestia-node.git
 PROJECT_FOLDER=celestia-node
 DAEMON_VERSION=v0.14.0
-DAEMON_NAME=celestia-lightd
+DAEMON_NAME=celestia
 DAEMON_NETWORK=mocha
 DEFAULT_KEY_NAME=my_celes_key
 DEFAULT_RPC_PORT=10101
@@ -28,17 +28,17 @@ NODE_TYPE=light
 RPC_ENDPOINT=rpc-mocha.pops.one
 CELESTIA_OTEL_URL=otel.celestia.tools:4318
 
-echo "export GO_VERSION=${GO_VERSION}" >> ${HOME}/.bash_profile
-echo "export REPO=${REPO}" >> ${HOME}/.bash_profile
-echo "export PROJECT_FOLDER=${PROJECT_FOLDER}" >> ${HOME}/.bash_profile
-echo "export DAEMON_VERSION=${DAEMON_VERSION}" >> ${HOME}/.bash_profile
-echo "export DAEMON_NAME=${DAEMON_NAME}" >> ${HOME}/.bash_profile
-echo "export DAEMON_NETWORK=${DAEMON_NETWORK}" >> ${HOME}/.bash_profile
-echo "export NODE_TYPE=${NODE_TYPE}" >> ${HOME}/.bash_profile
+echo "export GO_VERSION=${GO_VERSION}" >> ~/.bash_profile
+echo "export REPO=${REPO}" >> ~/.bash_profile
+echo "export PROJECT_FOLDER=${PROJECT_FOLDER}" >> ~/.bash_profile
+echo "export DAEMON_VERSION=${DAEMON_VERSION}" >> ~/.bash_profile
+echo "export DAEMON_NAME=${DAEMON_NAME}" >> ~/.bash_profile
+echo "export DAEMON_NETWORK=${DAEMON_NETWORK}" >> ~/.bash_profile
+echo "export NODE_TYPE=${NODE_TYPE}" >> ~/.bash_profile
 
-source ${HOME}/.bash_profile
+source ~/.bash_profile
 
-cd ${HOME}
+cd ~
 wget "https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
 sudo tar -C /usr/local -xzf "go${GO_VERSION}.linux-amd64.tar.gz"
@@ -46,7 +46,7 @@ rm "go${GO_VERSION}.linux-amd64.tar.gz"
 
 sleep 1
 
-cd ${HOME}
+cd ~
 rm -rf ${PROJECT_FOLDER}
 git clone $REPO
 cd ${PROJECT_FOLDER}
@@ -59,7 +59,7 @@ rm -rf build
 make cel-key
 mv cel-key /usr/local/bin/
 
-cd ${HOME}
+cd ~
 
 celestia ${NODE_TYPE} init --p2p.network ${DAEMON_NETWORK}
 
@@ -99,4 +99,4 @@ echo '=============== SETUP IS FINISHED ==================='
 echo -e "CHECK OUT YOUR LOGS : \e[1m\e[32mjournalctl -fu ${DAEMON_NAME} -o cat\e[0m"
 echo -e "CHECK SYNC: \e[1m\e[32mcurl -s localhost:26657/status | jq .result.sync_info\e[0m"
 
-source ${HOME}/.bash_profile
+source ~/.bash_profile
