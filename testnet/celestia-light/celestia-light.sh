@@ -75,7 +75,7 @@ After=network-online.target
 
 [Service]
 User=root
-ExecStart=$(which ${DAEMON_NAME}) ${NODE_TYPE} start \
+ExecStart=(which ${DAEMON_NAME}) ${NODE_TYPE} start \
   --core.ip ${RPC_ENDPOINT} \
   --keyring.accname ${DEFAULT_KEY_NAME} \
   --metrics.tls=false \
