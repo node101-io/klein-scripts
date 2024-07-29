@@ -36,14 +36,13 @@ echo "export DAEMON_NAME=${DAEMON_NAME}" >> ${HOME}/.bash_profile
 echo "export DAEMON_NETWORK=${DAEMON_NETWORK}" >> ${HOME}/.bash_profile
 echo "export NODE_TYPE=${NODE_TYPE}" >> ${HOME}/.bash_profile
 
+source ${HOME}/.bash_profile
+
 cd ${HOME}
 wget "https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
 sudo tar -C /usr/local -xzf "go${GO_VERSION}.linux-amd64.tar.gz"
 rm "go${GO_VERSION}.linux-amd64.tar.gz"
-echo "export PATH=$PATH:/usr/local/go/bin:${HOME}/go/bin" >> ${HOME}/.bash_profile
-
-source ${HOME}/.bash_profile
 
 sleep 1
 
@@ -73,6 +72,7 @@ sudo tee <<EOF >/dev/null /etc/systemd/system/${DAEMON_NAME}.service
 [Unit]
 Description=${DAEMON_NAME} ${NODE_TYPE} Node
 After=network-online.target
+
 [Service]
 User=root
 ExecStart=$(which ${DAEMON_NAME}) ${NODE_TYPE} start \
@@ -86,6 +86,7 @@ ExecStart=$(which ${DAEMON_NAME}) ${NODE_TYPE} start \
 Restart=on-failure
 RestartSec=3
 LimitNOFILE=4096
+
 [Install]
 WantedBy=multi-user.target
 EOF
