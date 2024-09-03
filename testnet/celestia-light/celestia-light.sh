@@ -19,7 +19,7 @@ sudo apt install -y curl tar wget clang pkg-config libssl-dev jq build-essential
 GO_VERSION=$(curl -L https://golang.org/VERSION?m=text | grep '^go' | sed 's/^go//')
 REPO=https://github.com/celestiaorg/celestia-node.git
 PROJECT_FOLDER=celestia-node
-DAEMON_VERSION=v0.14.0
+DAEMON_VERSION=v0.15.0
 DAEMON_NAME=celestia
 DAEMON_NETWORK=mocha
 DEFAULT_KEY_NAME=my_celes_key
@@ -77,7 +77,7 @@ After=network-online.target
 User=root
 ExecStart=$(which ${DAEMON_NAME}) ${NODE_TYPE} start \
   --core.ip ${RPC_ENDPOINT} \
-  --keyring.accname ${DEFAULT_KEY_NAME} \
+  --keyring.keyname ${DEFAULT_KEY_NAME} \
   --metrics.tls=false \
   --metrics \
   --metrics.endpoint ${CELESTIA_OTEL_URL} \
